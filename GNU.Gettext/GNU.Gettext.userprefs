@@ -1,0 +1,37 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="GNU.Gettext.Msgfmt/Program.cs">
+    <Files>
+      <File FileName="GNU.Gettext.Msgfmt/Program.cs" Line="276" Column="29" />
+      <File FileName="GNU.Gettext.Test/GetoptTest.cs" Line="53" Column="26" />
+      <File FileName="Examples.HelloForms/Form1.cs" Line="29" Column="41" />
+      <File FileName="GNU.Gettext.Test/Program.cs" Line="21" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True" selected="True">
+          <Node name="Examples.Hello" expanded="True">
+            <Node name="po" expanded="True" />
+          </Node>
+          <Node name="Examples.HelloForms" expanded="True" />
+          <Node name="GNU.Getopt" expanded="True" />
+          <Node name="GNU.Gettext" expanded="True" />
+          <Node name="GNU.Gettext.Msgfmt" expanded="True" />
+          <Node name="GNU.Gettext.Test" expanded="True">
+            <Node name="Data" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+      <Pad Id="MonoDevelop.NUnit.TestPad">
+        <State expanded="True" selected="True" />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
