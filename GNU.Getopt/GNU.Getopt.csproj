@@ -31,7 +31,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Gnu.Getopt.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -40,7 +39,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Gnu.Getopt.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -94,77 +92,4 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <PropertyGroup>
-    <PostBuildEvent>REM ********** Call MRefBuilder ****************************
-
-MRefBuilder Gnu.Getopt.dll /out:reflection.org
-
-REM ********** Apply Transforms ****************************
-
-REM if {%251} == {vs2005} (
-XslTransform /xsl:"%25DXROOT%25ProductionTransforms\ApplyVSDocModel.xsl" reflection.org /xsl:"%25DXROOT%25\ProductionTransforms\AddFriendlyFilenames.xsl" /out:reflection.xml
-REM  ) else (
-REM  XslTransform /xsl:"%25DXROOT%25ProductionTransforms\ApplyPrototypeDocModel.xsl" reflection.org /xsl:"%25DXROOT%25\ProductionTransforms\AddGuidFilenames.xsl" /out:reflection.xml
-REM  )
-
-
-XslTransform /xsl:"%25DXROOT%25ProductionTransforms\ReflectionToManifest.xsl"  reflection.xml /out:manifest.xml
-
-call "%25DXROOT%25Presentation\vs2005\copyOutput.bat"
-
-REM ********** Call BuildAssembler ****************************
-BuildAssembler /config:"%25DXROOT%25Presentation\vs2005\configuration\sandcastle.config" manifest.xml
-
- 
-XslTransform /xsl:"%25DXROOT%25ProductionTransforms\ReflectionToChmProject.xsl" reflection.xml /out:Output\Gnu.Getopt.hhp
-
-
-REM **************Generate an intermediate Toc file that simulates the Whidbey TOC format.
-
-REM if {%251} == {vs2005} (
-XslTransform /xsl:"%25DXROOT%25ProductionTransforms\createvstoc.xsl" reflection.xml /out:toc.xml 
-REM ) else (
-REM XslTransform /xsl:"%25DXROOT%25ProductionTransforms\createPrototypetoc.xsl" reflection.xml /out:toc.xml 
-REM )
-
-REM ************ Generate CHM help project ******************************
-
-XslTransform /xsl:"%25DXROOT%25ProductionTransforms\TocToChmContents.xsl" toc.xml /out:Output\Gnu.Getopt.hhc
-
-
-XslTransform /xsl:"%25DXROOT%25ProductionTransforms\ReflectionToChmIndex.xsl" reflection.xml /out:Output\Gnu.Getopt.hhk
-
-hhc output\Gnu.Getopt.hhp
-
-cd output
-
-REM if {%251} == {vs2005} (
-if exist Gnu.Getopt_vs2005.chm del Gnu.Getopt_vs2005.chm
-ren Gnu.Getopt.chm Gnu.Getopt_vs2005.chm
-REM )else (
-REM if exist Gnu.Getopt_prototype.chm del Gnu.Getopt_prototype.chm
-REM ren Gnu.Getopt.chm Gnu.Getopt_prototype.chm
-REM )
-
-cd ..
-
-
-REM ************ Generate HxS help project **************************************
-
-call "%25DXROOT%25Presentation\vs2005\copyHavana.bat"
-
-XslTransform /xsl:"%25DXROOT%25ProductionTransforms\TocToHxSContents.xsl" toc.xml /out:Output\Gnu.Getopt.HxT
-
-:: If you need to generate hxs, please uncomment the following line. Make sure "Microsoft Help 2.0 SDK" is installed on your machine.
-REM: hxcomp.exe -p output\Gnu.Getopt.hxc
-
-</PostBuildEvent>
-  </PropertyGroup>
 </Project>
