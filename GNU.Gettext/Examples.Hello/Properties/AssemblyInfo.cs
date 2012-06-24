@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Examples.Hello")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("GNU gettext Hello")]
+[assembly: AssemblyDescription("GNU gettext example for console application")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Free Software Foundation, Inc.")]
 [assembly: AssemblyProduct("Examples.Hello")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2012")]
+[assembly: AssemblyCopyright("Copyright © 1987-1997 Free Software Foundation, Inc., C#.NET Port © 2011-2012 by Serguei Tarassov <st@arbinada.com>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
