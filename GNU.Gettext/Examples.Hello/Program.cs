@@ -17,6 +17,7 @@ namespace GNU.Gettext.Examples
     {
         static void Main(string[] args)
         {
+			ShowMessages();
             System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("fr-FR");
 			ShowMessages();
             System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("ru-RU");
