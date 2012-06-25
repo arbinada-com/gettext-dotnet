@@ -21,14 +21,28 @@ namespace GNU.Gettext.Test
 			options.InputFile = "../../../Examples.Hello/po/fr.po";
 			options.BaseName = "Examples.Hello.Messages";
 			options.OutDir = "../../../Examples.Hello/bin/Debug";
-			options.CompilerName = "mcs";
+			if (System.IO.Path.DirectorySeparatorChar == '\\')
+			{
+				options.CompilerName = "csc";
+			}
+			else
+			{
+				options.CompilerName = "mcs";
+			}
 			options.LibDir = "./";
 			options.Locale = new CultureInfo("fr-FR");
 			options.Verbose = true;
 
 			AssemblyGen gen = new AssemblyGen(options);
 			gen.DeleteFile = false;
-			gen.Run();
+			try
+			{
+				gen.Run();
+			}
+			catch(Exception e)
+			{
+				Assert.Fail("Assebly generation faild. Check that CSharp compiler is in PATH.\n{0}", e.Message);
+			}
 		}
 
 		[Test()]

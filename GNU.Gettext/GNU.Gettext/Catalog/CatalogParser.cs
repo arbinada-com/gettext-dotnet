@@ -112,6 +112,10 @@ namespace GNU.Gettext
 			if (! input.StartsWith (pattern))
 				return false;
 			
+			// Avoid parsing Windows paths as escape sequences
+			if (pattern.Trim().Equals("#:"))
+				input = input.Replace('\\', '/');
+			
 			output = StringEscaping.FromGettextFormat (input.Substring (pattern.Length).TrimEnd (' ', '\t'));
 			return true;
 		}

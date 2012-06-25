@@ -34,6 +34,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace GNU.Gettext
 {
@@ -196,25 +197,26 @@ namespace GNU.Gettext
 		/// <summary>
 		/// Loads catalog from .po file.
 		/// </summary>
-		public bool Load (string poFile)
+		public void Load (string poFile)
 		{
 			Clear ();
 			isOk = false;
 			fileName = poFile;
 
 			// Load the .po file:
-			bool finished = false;
+			CharsetInfoFinder charsetFinder = new CharsetInfoFinder (poFile);
+			this.Charset = charsetFinder.Charset;
 			try {
-				CharsetInfoFinder charsetFinder = new CharsetInfoFinder (poFile);
 				charsetFinder.Parse ();
 				Charset = charsetFinder.Charset;
 				originalNewLine = charsetFinder.NewLine;
-				finished = true;
-			} catch (Exception e) {
-				throw new Exception("Error during getting charset of file '" + poFile + "'.", e);
+				this.Charset = charsetFinder.Charset;
+			} catch (Exception) {
+				Trace.WriteLine(String.Format(
+					"Cannot detect charset of file '{0}'. Using default charset '{1}'",
+					poFile,
+					charsetFinder.Charset));
 			}
-			if (!finished)
-				return false;
 
 			LoadParser parser = new LoadParser (this, poFile, Catalog.GetEncoding (this.Charset));
 			if (!parser.Parse ()) {
@@ -223,7 +225,7 @@ namespace GNU.Gettext
 
 			isOk = true;
 			IsDirty = false;
-			return true;
+			return;
 		}
 		
 		// Ensures that the end lines of text are the same as in the reference string.

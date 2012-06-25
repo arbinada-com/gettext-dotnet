@@ -11,23 +11,13 @@
     <RootNamespace>GNU.Getopt</RootNamespace>
     <AssemblyName>GNU.Getopt</AssemblyName>
     <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>Gnu.Getopt.snk</AssemblyOriginatorKeyFile>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>2.0</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Bin</OutputPath>
+    <OutputPath>..\Bin\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -35,16 +25,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Bin</OutputPath>
+    <OutputPath>..\Bin\Release</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="Getopt.cs" />
     <Compile Include="LongOpt.cs" />
@@ -56,40 +41,15 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.no.resx">
-      <SubType>Designer</SubType>
-      <LogicalName>Gnu.Getopt.Properties.Resources.no.resources</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.nl.resx">
-      <SubType>Designer</SubType>
-      <LogicalName>Gnu.Getopt.Properties.Resources.nl.resources</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.ja.resx">
-      <SubType>Designer</SubType>
-      <LogicalName>Gnu.Getopt.Properties.Resources.ja.resources</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.hu.resx">
-      <SubType>Designer</SubType>
-      <LogicalName>Gnu.Getopt.Properties.Resources.hu.resources</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.fr.resx">
-      <SubType>Designer</SubType>
-      <LogicalName>Gnu.Getopt.Properties.Resources.fr.resources</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.cs.resx">
-      <SubType>Designer</SubType>
-      <LogicalName>Gnu.Getopt.Properties.Resources.cs.resources</LogicalName>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <LogicalName>Gnu.Getopt.Properties.Resources.resources</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.de.resx">
-      <SubType>Designer</SubType>
-      <LogicalName>Gnu.Getopt.Properties.Resources.de.resources</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
 </Project>

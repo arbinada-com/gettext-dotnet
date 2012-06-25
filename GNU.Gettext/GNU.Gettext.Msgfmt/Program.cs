@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Reflection;
 using System.Globalization;
+using System.Diagnostics;
 
 using GNU.Getopt;
 
@@ -27,15 +28,6 @@ namespace GNU.Gettext.Msgfmt
 		public Mode Mode { get; set; }
 		public bool Verbose { get; set; }
 		public bool ShowUsage { get; set; }
-//		public string ClassName
-//		{
-//			get { return GettextResourceManager.ExtractClassName(this.BaseName); }
-//		}
-//
-//		public string NamespaceName
-//		{
-//			get { return GettextResourceManager.ExtractNamespace(this.BaseName); }
-//		}
 		public bool HasNamespace
 		{
 			get { return !String.IsNullOrEmpty(BaseName); }
@@ -67,16 +59,23 @@ namespace GNU.Gettext.Msgfmt
 
         static int Main(string[] args)
         {
-
+			Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
+			
 			StringBuilder message;
             CmdLineOptions options = new CmdLineOptions();
-			if (!GetOptions(args, SOpts, LOpts, options, out message))
+			if (args.Length == 0)
+			{
+                PrintUsage();
+				return 1;
+			}
+			else if (!GetOptions(args, SOpts, LOpts, options, out message))
 			{
 				Console.WriteLine(message.ToString());
 				return 1;
 			}
 			else if (options.ShowUsage)
 			{
+                PrintUsage();
 				return 0;
 			}
 			if (!AnalyseOptions(options, out message))
@@ -132,8 +131,6 @@ namespace GNU.Gettext.Msgfmt
 					                     args[getopt.Optind - 1]);
 					return false;
 				case '?':
-					//message.AppendFormat("Invalid option {0}", args[getopt.Optind]);
-					//return false;
 					break; // getopt() already printed an error
 				case 'a':
 					options.Mode = Mode.SateliteAssembly;
@@ -166,7 +163,7 @@ namespace GNU.Gettext.Msgfmt
                     options.Verbose = true;
                     break;
                 case 'h':
-                    PrintUsage();
+					options.ShowUsage = true;
                     return true;
 				default:
                     PrintUsage();
@@ -212,7 +209,7 @@ namespace GNU.Gettext.Msgfmt
                 {
                     if (accepted && String.IsNullOrEmpty(options.BaseName))
                     {
-                        message.Append("Undefined catalog name");
+                        message.Append("Undefined base name");
                         accepted = false;
                     }
                     if (accepted && String.IsNullOrEmpty(options.OutDir))

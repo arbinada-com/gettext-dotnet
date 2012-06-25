@@ -10,7 +10,7 @@ rm -f -r ./$release_dir
 mkdir $release_dir
 mkdir ./$release_dir/Bin
 mkdir ./$release_dir/Win32
-cp -r ./Bin/* ./$release_dir/Bin/
+cp -r ./Bin/Release/* ./$release_dir/Bin/
 cp -r ./Win32/* ./$release_dir/Win32/
 
 svn_repo_url=https://genielamp.svn.sourceforge.net/svnroot/gettextnet

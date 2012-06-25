@@ -1,0 +1,4 @@
+@echo off
+
+set MONO_HOME=C:\Program Files\Mono-2.10.5
+set MONO_BIN=%MONO_HOME%\bin
