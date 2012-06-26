@@ -3,8 +3,8 @@ version=1.1
 common_build_options=/target:Build /verbosity:quiet
 product_name=GettextNet
 release_dir=GettextNet
-xbuild "./GNU.Gettext/GNU.Gettext/GNU.Gettext.sln" $common_build_options /property:configuration=Release 
-xbuild "./GNU.Gettext/GNU.Gettext/GNU.Gettext.sln" $common_build_options /property:configuration=Debug
+xbuild "./GNU.Gettext/GNU.Gettext.sln" $common_build_options /property:configuration=Release 
+xbuild "./GNU.Gettext/GNU.Gettext.sln" $common_build_options /property:configuration=Debug
 rm -f -r ./$release_dir
 mkdir $release_dir
 mkdir ./$release_dir/Bin
