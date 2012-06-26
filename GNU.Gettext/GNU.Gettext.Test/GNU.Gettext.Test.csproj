@@ -10,7 +10,6 @@
     <RootNamespace>GNU.Gettext.Test</RootNamespace>
     <AssemblyName>GNU.Gettext.Test</AssemblyName>
     <StartupObject>GNU.Gettext.Test.MainClass</StartupObject>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,11 +45,12 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
     <Compile Include="GettextResourceManagerTest.cs" />
     <Compile Include="CatalogTest.cs" />
     <Compile Include="MsgfmtTest.cs" />
     <Compile Include="GetoptTest.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="XgettextTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -66,6 +66,10 @@
       <Project>{24BE81B3-C22E-448B-A892-AAF95AB28747}</Project>
       <Name>GNU.Getopt</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GNU.Gettext.Xgettext\GNU.Gettext.Xgettext.csproj">
+      <Project>{69B39E65-093E-417A-BFC9-B1CF7B981680}</Project>
+      <Name>GNU.Gettext.Xgettext</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
@@ -74,5 +78,8 @@
     <Content Include="Data\Test01.po">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\XgettextTest.txt" />
   </ItemGroup>
 </Project>

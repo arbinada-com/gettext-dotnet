@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples.HelloForms", "Exam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext.Test", "GNU.Gettext.Test\GNU.Gettext.Test.csproj", "{40A18DF7-3926-4AC4-8726-581F5C39082D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext.Xgettext", "GNU.Gettext.Xgettext\GNU.Gettext.Xgettext.csproj", "{69B39E65-093E-417A-BFC9-B1CF7B981680}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,18 @@ Global
 		{6996D99C-2E0F-4EDA-9FF0-BB45F81EADC8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{6996D99C-2E0F-4EDA-9FF0-BB45F81EADC8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{6996D99C-2E0F-4EDA-9FF0-BB45F81EADC8}.Release|x86.ActiveCfg = Release|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Debug|x86.Build.0 = Debug|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Release|x86.ActiveCfg = Release|Any CPU
+		{69B39E65-093E-417A-BFC9-B1CF7B981680}.Release|x86.Build.0 = Release|Any CPU
 		{D7DC509C-6BD5-4627-92A8-5CF39A2A41BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D7DC509C-6BD5-4627-92A8-5CF39A2A41BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7DC509C-6BD5-4627-92A8-5CF39A2A41BC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -95,7 +109,7 @@ Global
 		{D7DC509C-6BD5-4627-92A8-5CF39A2A41BC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = GNU.Gettext.Msgfmt\GNU.Gettext.Msgfmt.csproj
+		StartupItem = GNU.Gettext.Xgettext\GNU.Gettext.Xgettext.csproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

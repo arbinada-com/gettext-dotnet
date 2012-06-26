@@ -264,7 +264,7 @@ namespace GNU.Gettext.Msgfmt
                 Assembly.GetExecutingAssembly().GetName().Name);
             Console.WriteLine("   -a, --mode-assembly            Generate satellite assembly DLL (default)");
             Console.WriteLine("   -r, --mode-resource            Generate .resources file");
-            Console.WriteLine("   -iFILE, --inputfile=FILE       Input PO file name (must be in PO format)");
+            Console.WriteLine("   -iFILE, --input-file=FILE       Input PO file name (must be in PO format)");
             Console.WriteLine("   -oFILE, --output-file=FILE     Output file name for .NET resources file. Ignored when -d is specified");
             Console.WriteLine("   -dPATH, --output-dir=PATH      Output root directory for satellite assemblies");
             Console.WriteLine("   -lLOCALE, --locale=LOCALE      .NET locale (culture) name i.e. \"en-US\", \"en\", \"fr-FR\" etc.");

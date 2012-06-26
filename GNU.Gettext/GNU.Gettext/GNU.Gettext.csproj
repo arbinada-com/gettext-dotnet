@@ -11,7 +11,6 @@
     <RootNamespace>GNU.Gettext</RootNamespace>
     <AssemblyName>GNU.Gettext</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

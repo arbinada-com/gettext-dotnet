@@ -28,10 +28,10 @@ namespace GNU.Gettext.Examples
 			                                   System.Diagnostics.Process.GetCurrentProcess().Id);
             label3.Text = String.Format(
 				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 1),
-				0);
-            label4.Text = String.Format(
-				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 1),
 				1);
+            label4.Text = String.Format(
+				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 2),
+				2);
             label5.Text = String.Format(
 				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 5),
 				5);

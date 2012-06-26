@@ -1,0 +1,26 @@
+this.Text = @"123456";
+this.Text = @"12""3""46";
+this.Text = @"123
+456
+789
+";
+
+this.Text = "a123456";
+
+this.Text = "a12\"3\"46";
+this.Text = @"a12""3""46"; // duplicate shoild be ignored
+
+someCatalog.GetString("b123456");
+someCatalog.GetString("b12\"3\"46");
+someCatalog.GetString(@"c123456");
+someCatalog.GetString(@"c12""3""46");
+someCatalog.GetStringFmt("c123{0}456", 222);
+
+Console.WriteLine(String.Format(
+	catalog.GetPluralString(
+		"found {0} similar word", 
+		"found {0} similar words", 1),
+	0));
+
+
+// 12 matches with 1 duplicates
