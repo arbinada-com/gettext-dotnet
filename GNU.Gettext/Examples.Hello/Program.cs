@@ -34,10 +34,10 @@ namespace GNU.Gettext.Examples
 			                  Process.GetCurrentProcess().Id));
             Console.WriteLine(String.Format(
 				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 1),
-				0));
-            Console.WriteLine(String.Format(
-				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 1),
 				1));
+            Console.WriteLine(String.Format(
+				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 2),
+				2));
             Console.WriteLine(String.Format(
 				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 5),
 				5));

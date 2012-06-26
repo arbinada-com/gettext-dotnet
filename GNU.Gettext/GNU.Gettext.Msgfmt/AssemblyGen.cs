@@ -44,7 +44,7 @@ namespace GNU.Gettext.Msgfmt
 			Generate();
 			SaveToFile();
 			Compile();
-			if (DeleteFile)
+			if (DeleteFile && !Options.DebugMode)
 				File.Delete(FileName);
         }
 

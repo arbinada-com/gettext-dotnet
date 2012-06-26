@@ -28,6 +28,7 @@ namespace GNU.Gettext.Msgfmt
 		public Mode Mode { get; set; }
 		public bool Verbose { get; set; }
 		public bool ShowUsage { get; set; }
+		public bool DebugMode { get; set; }
 		public bool HasNamespace
 		{
 			get { return !String.IsNullOrEmpty(BaseName); }
@@ -41,18 +42,21 @@ namespace GNU.Gettext.Msgfmt
 		{
 			get
 			{
-				LongOpt[] lopts = new LongOpt[11];
-				lopts[0] = new LongOpt("help", Argument.No, null, 'h');
-				lopts[1] = new LongOpt("mode-resource", Argument.No, null, 'r');
-				lopts[2] = new LongOpt("mode-assembly", Argument.No, null, 'a');
-				lopts[3] = new LongOpt("input-file", Argument.Required, null, 'i');
-				lopts[4] = new LongOpt("output-file", Argument.Required, null, 'o');
-				lopts[5] = new LongOpt("output-dir", Argument.Required, null, 'd');
-				lopts[6] = new LongOpt("locale", Argument.Required, null, 'l');
-				lopts[7] = new LongOpt("base-name", Argument.Required, null, 'b');
-				lopts[8] = new LongOpt("lib-dir", Argument.Required, null, 'L');
-				lopts[9] = new LongOpt("verbose", Argument.No, null, 'v');
-				lopts[10] = new LongOpt("compiler-name", Argument.Required, null, 'c');
+				LongOpt[] lopts = new LongOpt[]
+				{
+					new LongOpt("help", Argument.No, null, 'h'),
+					new LongOpt("mode-resource", Argument.No, null, 'r'),
+					new LongOpt("mode-assembly", Argument.No, null, 'a'),
+					new LongOpt("input-file", Argument.Required, null, 'i'),
+					new LongOpt("output-file", Argument.Required, null, 'o'),
+					new LongOpt("output-dir", Argument.Required, null, 'd'),
+					new LongOpt("locale", Argument.Required, null, 'l'),
+					new LongOpt("base-name", Argument.Required, null, 'b'),
+					new LongOpt("lib-dir", Argument.Required, null, 'L'),
+					new LongOpt("verbose", Argument.No, null, 'v'),
+					new LongOpt("compiler-name", Argument.Required, null, 'c'),
+					new LongOpt("debug", Argument.No, null, 0)
+				};
 				return lopts;
 			}
 		}
@@ -120,12 +124,17 @@ namespace GNU.Gettext.Msgfmt
 			options.Verbose = false;
 			options.CompilerName = "mcs";
 			options.ShowUsage = false;
+			options.DebugMode = false;
 
             int option;
             while ((option = getopt.getopt()) != -1)
             {
                 switch (option)
                 {
+				case 0:
+					options.DebugMode = true;
+					Trace.WriteLine("Debug mode is ON");
+					break;
 				case ':':
 					message.AppendFormat("Option {0} requires an argument",
 					                     args[getopt.Optind - 1]);
