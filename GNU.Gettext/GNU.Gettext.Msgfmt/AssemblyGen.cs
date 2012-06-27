@@ -201,7 +201,7 @@ namespace GNU.Gettext.Msgfmt
 
 		static string ToMsgid(CatalogEntry entry)
 		{
-			return ToConstStr(entry.String);
+			return ToConstStr(entry.Key);
 		}
 
 

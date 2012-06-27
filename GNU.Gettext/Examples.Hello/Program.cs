@@ -41,7 +41,8 @@ namespace GNU.Gettext.Examples
             Console.WriteLine(String.Format(
 				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 5),
 				5));
-            Console.WriteLine(catalog.GetString("Here is an example of how one might continue a very long string\nfor the common case the string represents multi-line output.\n"));
+            Console.WriteLine(catalog.GetString(
+				"Here is an example of how one might continue a very long string\nfor the common case the string represents multi-line output.\n"));
 		}
     }
 }

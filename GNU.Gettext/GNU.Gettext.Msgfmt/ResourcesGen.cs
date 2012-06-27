@@ -27,11 +27,15 @@ namespace GNU.Gettext.Msgfmt
                 {
                     try
 					{
-						writer.AddResource(entry.String, entry.IsTranslated ? entry.GetTranslation(0) : entry.String);
+						writer.AddResource(entry.Key, entry.IsTranslated ? entry.GetTranslation(0) : entry.String);
 					}
                     catch (Exception e)
 					{
-						throw new Exception(String.Format("Error adding item {0}", entry.String), e);
+						string message = String.Format("Error adding item {0}", entry.String);
+						if (!String.IsNullOrEmpty(entry.Context))
+							message = String.Format("Error adding item {0} in context '{1}'", 
+							                        entry.String, entry.Context);
+						throw new Exception(message, e);
 					}
                 }
                 writer.Generate();

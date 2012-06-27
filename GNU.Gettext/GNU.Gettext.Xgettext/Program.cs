@@ -24,7 +24,6 @@ namespace GNU.Gettext.Xgettext
 		public bool Recursive { get; set; }
 		public bool Verbose { get; set; }
 		public bool ShowUsage { get; set; }
-		public int DefaultPluralsNumberOfTranslations { get; set; }
         public string FileMask { get; set; }
 		public InputMode InputMode { get; set; }
 	}
@@ -105,7 +104,6 @@ namespace GNU.Gettext.Xgettext
                     Opterr = false
                 };
 
-			options.DefaultPluralsNumberOfTranslations = 2;
 			options.Verbose = false;
 			options.ShowUsage = false;
 			options.Recursive = false;

@@ -25,14 +25,24 @@ namespace GNU.Gettext.Test
 			}
 			
 			Options options = new Options();
-			options.InputFile = @"\Test\File\Name.cs";
-			options.OutFile = @"D:\MEDS\Main\Sources\Framework\PresentationLayer\DxCareShell\po\Text.pot";
-			options.DefaultPluralsNumberOfTranslations = 2;
+			options.InputFile = @"\Test\File\Name.cs"; // File is not used, feed the plain text
+			options.OutFile = @"./Test.pot";
+			options.Overwrite = true;
 			ExtractorCsharp extractor = new ExtractorCsharp(options);
 			extractor.GetMessages(text, options.InputFile);
 			extractor.Save();
-			Assert.AreEqual(1, extractor.Catalog.PluralFormsCount, "Plural string");
-			Assert.AreEqual(11, extractor.Catalog.Count, "Not all strings was extracted");
+			
+			int ctx = 0;
+			foreach(CatalogEntry entry in extractor.Catalog)
+			{
+				if (entry.HasContext)
+					ctx++;
+			}
+			
+			Assert.AreEqual(2, ctx, "Context count");
+			
+			Assert.AreEqual(2, extractor.Catalog.PluralFormsCount, "PluralFormsCount");
+			Assert.AreEqual(14, extractor.Catalog.Count, "Duplicates may not detected");
 		}
 	}
 }

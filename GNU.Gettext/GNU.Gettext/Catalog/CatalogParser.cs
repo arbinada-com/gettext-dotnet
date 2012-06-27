@@ -146,6 +146,7 @@ namespace GNU.Gettext
 			string line, dummy;
 			string mflags = String.Empty;
 			string mstr = String.Empty;
+			string msgctxt = String.Empty;
 			string msgidPlural = String.Empty;
 			string mcomment = String.Empty;
 			List<string> mrefs = new List<string> ();
@@ -214,6 +215,13 @@ namespace GNU.Gettext
 						line = sr.ReadLine ();
 					}
 					
+					// msgctxt
+					else if (CatalogParser.ReadParam (line, "msgctxt \"", out dummy) ||
+					         CatalogParser.ReadParam (line, "msgctxt\t\"", out dummy))
+					{
+						msgctxt = ParseMessage (ref line, ref dummy, sr);
+					}
+					
 					// msgid:
 					else if (CatalogParser.ReadParam (line, "msgid \"", out dummy) ||
 					         CatalogParser.ReadParam (line, "msgid\t\"", out dummy))
@@ -244,12 +252,14 @@ namespace GNU.Gettext
 						
 						if (! OnEntry (mstr, String.Empty, false, mtranslations.ToArray (),
 						               mflags, mrefs.ToArray (), mcomment,
-						               mautocomments.ToArray ()))
+						               mautocomments.ToArray (),
+						               msgctxt))
 						{
 							return false;
 						}
 						
-						mcomment = mstr = msgidPlural = mflags = String.Empty;
+						// Cleanup vars
+						mcomment = mstr = msgidPlural = mflags = msgctxt = String.Empty;
 						hasPlural = false;
 						mrefs.Clear ();
 						mautocomments.Clear ();
@@ -288,7 +298,8 @@ namespace GNU.Gettext
 						
 						if (! OnEntry (mstr, msgidPlural, true, mtranslations.ToArray (),
 						               mflags, mrefs.ToArray (), mcomment,
-						               mautocomments.ToArray ()))
+						               mautocomments.ToArray (),
+						               msgctxt))
 						{
 							return false;
 						}
@@ -313,7 +324,7 @@ namespace GNU.Gettext
 						if (! OnDeletedEntry (deletedLines.ToArray (), mflags, null, mcomment, mautocomments.ToArray ())) 
 							return false;
 						
-						mcomment = mstr = msgidPlural = mflags = String.Empty;
+						mcomment = mstr = msgidPlural = mflags = msgctxt = String.Empty;
 						hasPlural = false;
 						mrefs.Clear ();
 						mautocomments.Clear ();
@@ -346,7 +357,8 @@ namespace GNU.Gettext
 		protected abstract bool OnEntry (string msgid, string msgidPlural, bool hasPlural,
 		                                 string[] translations, string flags,
 		                                 string[] references, string comment,
-		                                 string[] autocomments);
+		                                 string[] autocomments,
+		                                 string msgctxt);
 
 		// Called when new deleted entry was parsed. Parsing continues
 		// if returned value is true and is cancelled if it
@@ -357,6 +369,7 @@ namespace GNU.Gettext
 		{
 			return true;
 		}
+		
 	}
 	
 	internal class CharsetInfoFinder : CatalogParser
@@ -379,7 +392,8 @@ namespace GNU.Gettext
 		protected override bool OnEntry (string msgid, string msgidPlural, bool hasPlural,
 		                                 string[] translations, string flags,
 		                                 string[] references, string comment,
-		                                 string[] autocomments)
+		                                 string[] autocomments,
+		                                 string msgctxt)
 		{
 			if (String.IsNullOrEmpty (msgid)) {
 				// gettext header:
@@ -394,6 +408,9 @@ namespace GNU.Gettext
 		}
 	}
 	
+	/// <summary>
+	/// Load parser.
+	/// </summary>
 	internal class LoadParser : CatalogParser
 	{
 		Catalog catalog;
@@ -407,7 +424,8 @@ namespace GNU.Gettext
 		protected override bool OnEntry (string msgid, string msgidPlural, bool hasPlural,
 		                                 string[] translations, string flags,
 		                                 string[] references, string comment,
-		                                 string[] autocomments)
+		                                 string[] autocomments,
+		                                 string msgctxt)
 		{
 			if (String.IsNullOrEmpty (msgid) && ! headerParsed) {
 				// gettext header:
@@ -429,6 +447,7 @@ namespace GNU.Gettext
 				for (uint i = 0; i < autocomments.Length; i++) {
 					d.AddAutoComment (autocomments[i]);
 				}
+				d.Context = msgctxt;
 				catalog.AddItem (d);
 			}
 			return true;

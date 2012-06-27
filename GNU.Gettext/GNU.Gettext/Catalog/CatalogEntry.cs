@@ -58,9 +58,11 @@ namespace GNU.Gettext
 		string comment;
 		Validity validity;
 		string errorString;
+		string context = String.Empty;
 		
 		Catalog owner;
 		
+		#region Constructors
 		// Initializes the object with original string and translation.
         public CatalogEntry (Catalog owner, string str, string plural)
         {
@@ -95,7 +97,9 @@ namespace GNU.Gettext
             comment = dt.comment;
             validity = dt.validity;
             errorString = dt.errorString;
+			context = dt.Context;
         }
+		#endregion
         
         // Returns the original string.
         public string String
@@ -134,6 +138,28 @@ namespace GNU.Gettext
 			else
 				return translations[index];
         }
+		
+		public string Context {
+			get { return context; }
+			set { context = value.Trim(); }
+		}
+
+		public bool HasContext {
+			get { return !String.IsNullOrEmpty(context); }
+		}
+		
+		public string Key {
+			get { return MakeKey(this.String, this.Context); }
+		}
+	
+		public static string MakeKey(string msgid, string context)
+		{
+			if (String.IsNullOrEmpty(msgid))
+				throw new Exception("Msgid cannot be empty");
+			return String.Format("{0}{1}", 
+			                     context == null ? String.Empty : context.Trim() + '|',
+			                     msgid);
+		}
 
         // Returns array of all occurences of this string in source code.
         public string[] References {

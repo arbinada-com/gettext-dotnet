@@ -47,7 +47,6 @@ namespace GNU.Gettext
 		string fileName;
 		string originalNewLine = Environment.NewLine;
 		bool isDirty;
-		int nplurals = 0;
 
 		public bool IsDirty {
 			get { return this.isDirty; }
@@ -82,13 +81,27 @@ namespace GNU.Gettext
 			}
 		}
 		
+		public string GetPluralFormsHeader()
+		{
+			// e.g. "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ?
+			//       0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+			if (HasHeader ("Plural-Forms")) {
+				return GetHeader ("Plural-Forms");
+			}
+			return "nplurals=2; plural=(n != 1)\\n";
+		}
+		
+		
 		/// <value>
 		/// Returns plural forms count: taken from Plural-Forms header if present, 0 otherwise
 		/// </value>
 		public int PluralFormsCount {
-			get {
-				if (nplurals == 0)
-					UpdatePluralsCount ();
+			get 
+			{
+				int nplurals = 2;
+				PluralFormsCalculator pfc = PluralFormsCalculator.Make(GetPluralFormsHeader());
+				if (pfc != null)
+					nplurals = pfc.NPlurals;
 				return nplurals;
 			}
 		}
@@ -289,6 +302,8 @@ namespace GNU.Gettext
 					sb.Append (data.Flags);
 					sb.Append (originalNewLine);
 				}
+				if (data.HasContext)
+					FormatMessageForFile (sb, "msgctxt", data.Context, originalNewLine);
 				FormatMessageForFile (sb, "msgid", data.String, originalNewLine);
 				if (data.HasPlural) {
 					FormatMessageForFile (sb, "msgid_plural", data.PluralString, originalNewLine);
@@ -398,9 +413,9 @@ namespace GNU.Gettext
 		
 		// Adds translation into the catalog. Returns true on success or false
 		// if such key does not exist in the catalog
-		public bool Translate (string key, string translation)
+		public bool Translate (string msgid, string context, string translation)
 		{
-			CatalogEntry d = FindItem (key);
+			CatalogEntry d = FindItem (msgid, context);
 			if (d == null)
 			{
 				return false;
@@ -411,10 +426,18 @@ namespace GNU.Gettext
 			}
 		}
 		
+		
 		// Returns catalog item with key or null if such key is not available.
-		public CatalogEntry FindItem (string key)
+		public CatalogEntry FindItem (string msgid, string context)
 		{
-			return entriesDict.ContainsKey (key) ? this.entriesDict[key] : null;
+			return entriesDict.ContainsKey (CatalogEntry.MakeKey(msgid, context)) ? 
+				this.entriesDict[CatalogEntry.MakeKey(msgid, context)] : null;
+		}
+		
+		public CatalogEntry FindItem (CatalogEntry entry)
+		{
+			return entriesDict.ContainsKey (entry.Key) ? 
+				this.entriesDict[entry.Key] : null;
 		}
 		
 		// Adds an item to the catalog if it isn't already there
@@ -447,35 +470,7 @@ namespace GNU.Gettext
 			}
 		}
 		
-		internal void UpdatePluralsCount ()
-		{
-			if (HasHeader ("Plural-Forms")) {
-				// e.g. "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ?
-				//       0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-
-				string form = GetHeader ("Plural-Forms");
-				int pos = form.IndexOf (';');
-				if (pos != -1)
-				{
-					form = form.Substring (0, pos);
-					pos = form.IndexOf ('=');
-					if (pos != -1)
-					{
-						if (form.Substring (0, pos) == "nplurals")
-						{
-							int val;
-							if (Int32.TryParse (form.Substring (pos + 1), out val))
-							{
-								nplurals = val;
-								return;
-							}
-						}
-					}
-				}
-			}
-			nplurals = 2;
-		}
-
+		
 		public string[] PluralFormsDescriptions {
 			get {
 				List<string> descriptions = new List<string> ();
@@ -528,7 +523,7 @@ namespace GNU.Gettext
 			for (int i = 0; i < catalog.Count; i++)
 			{
 				dt = catalog[i];
-				myDt = FindItem (dt.String);
+				myDt = FindItem (dt);
 				if (myDt == null)
 				{
 					myDt = new CatalogEntry (this, dt);
@@ -584,20 +579,23 @@ namespace GNU.Gettext
 		// Adds entry to the catalog (the catalog will take ownership of the object).
 		public void AddItem (CatalogEntry data)
 		{
-			if (this.entriesDict.ContainsKey (data.String))
+			if (FindItem(data) != null)
 			{
-				System.Diagnostics.Trace.TraceWarning("Duplicate message id '{0}' in po file, ignoring it to achieve validity", data.String);
+				System.Diagnostics.Trace.TraceWarning(
+					"Duplicate message id '{0}' (context '{1}') in po file, ignoring it to achieve validity", 
+					data.String,
+					data.HasContext ? data.Context : "");
 			} else
 			{
-				this.entriesDict.Add (data.String, data);
+				this.entriesDict.Add (data.Key, data);
 				entriesList.Add (data);
 			}
 		}
 		
 		public void RemoveItem (CatalogEntry data)
 		{
-			if (this.entriesDict.ContainsKey (data.String))
-				this.entriesDict.Remove (data.String);
+			if (FindItem(data) != null)
+				this.entriesDict.Remove (data.Key);
 			if (this.entriesList.Contains (data))
 				this.entriesList.Remove (data);
 		}
@@ -677,11 +675,11 @@ namespace GNU.Gettext
 			int i;
 
 			for (i = 0; i < this.Count; i++)
-				if (refCat.FindItem(this[i].String) == null)
+				if (refCat.FindItem(this[i]) == null)
 					obsoleteEnt.Add (this[i].String);
 
 			for (i = 0; i < refCat.Count; i++)
-				if (FindItem (refCat[i].String) == null)
+				if (FindItem (refCat[i]) == null)
 					newEnt.Add (refCat[i].String);
 			
 			newEntries = newEnt.ToArray ();
@@ -852,9 +850,6 @@ namespace GNU.Gettext
 		public void SetHeader (string key, string value)
 		{
 			headerEntries[key] = value;
-			
-			if (key == "Plural-Forms")
-				UpdatePluralsCount ();
 		}
 		
 		// Like SetHeader, but deletes the header if value is empty
@@ -864,9 +859,6 @@ namespace GNU.Gettext
 				DeleteHeader (key);
 			else
 				SetHeader (key, value);
-			
-			if (key == "Plural-Forms")
-				UpdatePluralsCount ();
 		}
 		
 		// Removes given header entry

@@ -125,6 +125,22 @@ namespace GNU.Gettext
 			return sb.ToString ();
 		}
 		
+		/// <summary>
+		/// Replace escape sequences strings by sequences.
+		/// I.e. "\\n" -> "\n", "\\"" -> "\"" etc.
+		/// </summary>
+		/// <returns>
+		/// Unescaped string
+		/// </returns>
+		/// <param name='mode'>
+		/// Unescaping mode
+		/// </param>
+		/// <param name='text'>
+		/// Text to process.
+		/// </param>
+		/// <exception cref='Exception'>
+		/// Throw an error if escaping mode is not supported.
+		/// </exception>
 		public static string UnEscape (EscapeMode mode, string text)
 		{
 			switch (mode) {
@@ -149,6 +165,7 @@ namespace GNU.Gettext
 		*/
 		
 		//based on the C# 2.0 spec
+		// http://msdn.microsoft.com/en-us/library/aa691090%28v=vs.71%29.aspx
 		static string FromCSharpVerbatimFormat (string text)
 		{
 			StringBuilder sb = new StringBuilder ();
@@ -158,7 +175,7 @@ namespace GNU.Gettext
 					i++;
 					char c2 = text[i];
 					if (c2 != '"')
-						throw new FormatException ("Unescaped '\"' character in C# verbatim string.");
+						throw new FormatException ("Unescaped \" character in C# verbatim string.");
 				}
 				sb.Append (c1);
 			}
@@ -221,6 +238,15 @@ namespace GNU.Gettext
 				case '\\':
 					sb.Append (c2);
 					break;
+				case 'a':
+					sb.Append ('\a');
+					break;
+				case 'b':
+					sb.Append ('\b');
+					break;
+				case 'f':
+					sb.Append ('\f');
+					break;
 				case 'n':
 					sb.Append ('\n');
 					break;
@@ -229,6 +255,9 @@ namespace GNU.Gettext
 					break;
 				case 't':
 					sb.Append ('\t');
+					break;
+				case 'v':
+					sb.Append ('\v');
 					break;
 				case 'U':
 					//FIXME UNICODE
@@ -241,11 +270,6 @@ namespace GNU.Gettext
 					//break;
 					//if (char.IsControl (c);
 					
-				//case '0':
-				//case 'a':
-				//case 'b':
-				//case 'f':
-				//case 'v':
 				default:
 					throw new FormatException ("Invalid escape '\\" + c2 + "' in translatable string.");
 				}

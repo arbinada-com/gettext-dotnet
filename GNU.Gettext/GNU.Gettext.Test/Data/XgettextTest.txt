@@ -1,26 +1,31 @@
-this.Text = @"123456";
-this.Text = @"12""3""46";
-this.Text = @"123
+/* 1 */ this.Text = @"123456"; 
+/* 2 */ this.Text = @"12""3""46";
+/* 3 */ this.Text = @"123
 456
 789
 ";
 
-this.Text = "a123456";
+/* 4 */ this.Text = "a123456";
 
-this.Text = "a12\"3\"46";
-this.Text = @"a12""3""46"; // duplicate shoild be ignored
+/* 5 */ this.Text = "a12\"3\"46";
+/* 6 */ this.Text = @"a12""3""46"; // duplicate shoild be ignored
 
-someCatalog.GetString("b123456");
-someCatalog.GetString("b12\"3\"46");
-someCatalog.GetString(@"c123456");
-someCatalog.GetString(@"c12""3""46");
-someCatalog.GetStringFmt("c123{0}456", 222);
+/* 7 */ someCatalog.GetString("b123456");
+/* 8 */ someCatalog.GetString("b12\"3\"46");
+/* 9 */ someCatalog.GetString(@"c123456");
+/* 10 */ someCatalog.GetString(@"c12""3""46");
 
-Console.WriteLine(String.Format(
+/* 11 */ someCatalog.GetStringFmt("d123\"{0}\"456", 222);
+/* 12 */ someCatalog.GetStringFmt(@"e123""{0}""456", 222);
+
+/* 13 */ Console.WriteLine(String.Format(
 	catalog.GetPluralString(
 		"found {0} similar word", 
 		"found {0} similar words", 1),
 	0));
 
+/* 14 */ someCatalog.GetParticularString("Sport", @"Score");
+/* 15 */ someCatalog.GetParticularString("Math", @"Score");
 
-// 12 matches with 1 duplicates
+
+// 15 matches with 1 duplicates

@@ -6,6 +6,13 @@ using System.Text.RegularExpressions;
 
 namespace GNU.Gettext.Xgettext
 {
+	public enum ExtractMode
+	{
+		Msgid,
+		MsgidPlural,
+		ContextMsgid,
+	}
+	
 	public class ExtractorCsharp
 	{
 		const string CsharpStringPatternExplained = @"
@@ -26,6 +33,7 @@ namespace GNU.Gettext.Xgettext
 			)";
 	
 		const string CsharpStringPattern = @"(@""(?:[^""]|"""")*""|""(?:\\.|[^\\""])*"")";
+		const string TwoStringsArgumentsPattern = CsharpStringPattern + @"\s*,\s*" + CsharpStringPattern;
 		
 		public Catalog Catalog { get; private set; }
 		public Options Options { get; private set; }
@@ -75,15 +83,11 @@ namespace GNU.Gettext.Xgettext
 			
 		public void GetMessages(string text, string sourceFile) 
 		{
-			ProcessPattern(@"\.\s*Text\s*=\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(@"GetString\(\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(@"GetStringFmt\(\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(@"GetPluralString\(\s*" + 
-			               CsharpStringPattern +
-			               @"\s*,\s*" +
-			               CsharpStringPattern
-			               ,
-			               text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, @"\.\s*Text\s*=\s*" + CsharpStringPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, @"GetString\(\s*" + CsharpStringPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, @"GetStringFmt\(\s*" + CsharpStringPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralString\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.ContextMsgid, @"GetParticularString\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
 		}
 		
 		public void Save()
@@ -98,7 +102,7 @@ namespace GNU.Gettext.Xgettext
 			Catalog.Save(Options.OutFile);
 		}
 		
-		private void ProcessPattern(string pattern, string text, string sourceFile)
+		private void ProcessPattern(ExtractMode mode, string pattern, string text, string sourceFile)
 		{
 			Regex r = new Regex(pattern, RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline);
 			MatchCollection matches = r.Matches(text);
@@ -106,40 +110,84 @@ namespace GNU.Gettext.Xgettext
 			foreach (Match match in matches)
 			{
 				GroupCollection groups = match.Groups;
-				string msgid = StripMsgid(groups[1].Value);
-				CatalogEntry entry = Catalog.FindItem(msgid);
-				bool entryFound = entry != null;
-				if (groups.Count == 3)
+				
+				// Initialisation
+				string msgid = String.Empty;
+				string msgidPlural = String.Empty;
+				string context = String.Empty;
+				switch(mode)
 				{
-					string msgidPlural = StripMsgid(groups[2].Value);
+				case ExtractMode.Msgid:
+					msgid = Unescape(groups[1].Value);
+					break;
+				case ExtractMode.MsgidPlural:
+					if (groups.Count < 3)
+						throw new Exception(String.Format("Invalid 'GetPluralString' call.\nSource: {0}", match.Value));
+					msgid = Unescape(groups[1].Value);
+					msgidPlural = Unescape(groups[2].Value);
+					break;
+				case ExtractMode.ContextMsgid:
+					if (groups.Count < 3)
+						throw new Exception(String.Format("Invalid get context message call.\nSource: {0}", match.Value));
+					context = Unescape(groups[1].Value);
+					msgid = Unescape(groups[2].Value);
+					break;
+				}
+				
+				// Processing
+				CatalogEntry entry = Catalog.FindItem(msgid, context);
+				bool entryFound = entry != null;
+				if (!entryFound)
+					entry = new CatalogEntry(Catalog, msgid, msgidPlural);
+				
+				switch(mode)
+				{
+				case ExtractMode.Msgid:
+					break;
+				case ExtractMode.MsgidPlural:
 					if (!entryFound)
 					{
-						entry = new CatalogEntry(Catalog, msgid, msgidPlural);
 						AddPluralsTranslations(entry);
 					}
-					else if (!entry.HasPlural)
-					{
-						AddPluralsTranslations(entry);
-						entry.SetPluralString(msgidPlural);
-					}
-					else if (entry.HasPlural && entry.PluralString != msgidPlural)
-					{
-						entry.SetPluralString(msgidPlural);
-					}
+					else
+						UpdatePluralEntry(entry, msgidPlural);
+					break;
+				case ExtractMode.ContextMsgid:
+					entry.Context = context;
+					break;
 				}
-				else
+				
+				// Add source reference if it not exists yet
+				string sourceRef = String.Format("{0}: {1}", sourceFile.Replace('\\', '/'), match.Index);
+				bool refFound = false;
+				foreach(string refStr in entry.References)
 				{
-					if (entry == null)
-						entry = new CatalogEntry(Catalog, StripMsgid(groups[1].Value), null);
+					if (refStr == sourceRef)
+					{
+						refFound = true;
+						break;
+					}
 				}
+				if (!refFound)
+					entry.AddReference(sourceRef);
+				
 				if (!entryFound)
 				{
 					Catalog.AddItem(entry);
 				}
-				
-				string sourceRef = String.Format("{0}: {1}", sourceFile.Replace('\\', '/'), match.Index);
-				entry.ClearReferences();
-				entry.AddReference(sourceRef);
+			}
+		}
+		
+		private void UpdatePluralEntry(CatalogEntry entry, string msgidPlural)
+		{
+			if (!entry.HasPlural)
+			{
+				AddPluralsTranslations(entry);
+				entry.SetPluralString(msgidPlural);
+			}
+			else if (entry.HasPlural && entry.PluralString != msgidPlural)
+			{
+				entry.SetPluralString(msgidPlural);
 			}
 		}
 
@@ -149,14 +197,17 @@ namespace GNU.Gettext.Xgettext
 			// Translator should change it using expression for it own country
 			// http://translate.sourceforge.net/wiki/l10n/pluralforms
 			List<string> translations = new List<string>();
-			for(int i = 0; i < Options.DefaultPluralsNumberOfTranslations; i++)
+			for(int i = 0; i < Catalog.PluralFormsCount; i++)
 				translations.Add("");
 			entry.SetTranslations(translations.ToArray());
 		}
 		
-		private static string StripMsgid(string msgid)
+		private static string Unescape(string msgid)
 		{
-			return msgid.Trim(new char[] {'@', '"'}).Replace("\r", "");
+			StringEscaping.EscapeMode mode = StringEscaping.EscapeMode.CSharp;
+			if (msgid.StartsWith("@"))
+				mode = StringEscaping.EscapeMode.CSharpVerbatim;
+			return StringEscaping.UnEscape(mode, msgid.Trim(new char[] {'@', '"'}));
 		}
 	}
 }
