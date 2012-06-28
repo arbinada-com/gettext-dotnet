@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2012-06-28 14:56:59+0200\n"
-"PO-Revision-Date: 2012-06-28 14:56:59+0200\n"
+"PO-Revision-Date: 2012-06-28 19:52:47+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -13,22 +13,28 @@ msgstr ""
 
 #: Form1.cs:79
 #: Form1.cs:107
+#: Form1.cs:84
+#: Form1.cs:112
 msgid "Hello, world!"
 msgstr ""
 
 #: Form1.cs:84
+#: Form1.cs:89
 msgid "en-US"
 msgstr ""
 
 #: Form1.cs:91
+#: Form1.cs:96
 msgid "fr-FR"
 msgstr ""
 
 #: Form1.cs:98
+#: Form1.cs:103
 msgid "ru-RU"
 msgstr ""
 
 #: Form1.cs:161
+#: Form1.cs:166
 msgid ""
 "Here is an example of how one might continue a very long string\n"
 "for the common case the string represents multi-line output.\n"
