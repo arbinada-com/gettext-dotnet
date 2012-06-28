@@ -1,12 +1,12 @@
 using System;
 using System.Windows.Forms;
 
-namespace GNU.Gettext.Examples
+namespace GNU.Gettext.WinForms
 {
-	public class FormLocalizer
+	public class Localizer
 	{
 
-		public FormLocalizer(Control control, string resourceBaseName)
+		public Localizer(Control control, string resourceBaseName)
 		{
             GettextResourceManager catalog = new GettextResourceManager(resourceBaseName);
 			Localize(control, catalog);

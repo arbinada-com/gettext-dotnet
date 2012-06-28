@@ -292,30 +292,22 @@ namespace GNU.Gettext
 			return node;
 		}
 		
-		EvalTracer tracer = null;
-		internal EvalTracer Tracer
+		RecursiveTracer tracer = new RecursiveTracer();
+		internal RecursiveTracer Tracer
 		{
 			get { return tracer; }
-			set
-			{
-				tracer = value;
-				for(int i = 0; i < NodesCount; i++)
-				{
-					if (Nodes[i] != null)
-						Nodes[i].Tracer = value;
-				}
-			}
+			set	{ tracer = value; }
 		}
          
-		public int Evaluate(int n)
+		public long Evaluate(long n)
 		{
 #if DEBUG
 			if (Tracer != null)
 			{
-				Tracer.Level++;
+				Tracer.Text.AppendFormat("{0}: (n = {1}): ", token.TokenType, n);
 			}
 #endif
-			int n0 = -1, n1 = -1, n2 = -1, result = -1;
+			long n0 = -1, n1 = -1, n2 = -1, result = -1;
 			switch (token.TokenType) {
 			// leaf
 			case PluralFormsToken.Type.Number:
@@ -356,7 +348,7 @@ namespace GNU.Gettext
 				result = n0 <= n1 ? 1 : 0;
 				break;
 			case PluralFormsToken.Type.Reminder:
-				int number = nodes[0].Evaluate(n);
+				long number = nodes[1].Evaluate(n);
 				if (number != 0)
 				{
 					n0 = nodes[0].Evaluate(n);
@@ -364,6 +356,9 @@ namespace GNU.Gettext
 				}
 				else
 					result = 0;
+#if DEBUG
+				Tracer.Text.AppendFormat("n0 % number = {0} % {1} = {2} | ", n0, number, result);
+#endif
 				break;
 			case PluralFormsToken.Type.LogicalAnd:
 				n0 = nodes[0].Evaluate(n);
@@ -389,12 +384,11 @@ namespace GNU.Gettext
 #if DEBUG
 			if (Tracer != null)
 			{
-				Tracer.Text.AppendFormat("{0}: ", Tracer.Level);
-				for (int i = 0; i < Tracer.Level; i++)
-					Tracer.Text.Append("\t");
-				Tracer.Text.AppendFormat("{0}: n = {1}, n0 = {2}, n1 = {3}, n2 = {4}, result = {5}",
-				                    token.TokenType, n, n0, n1, n2, result);
-				Tracer.Text.AppendLine();
+				Tracer.Text.AppendFormat("{0}{1}{2} result = {3}",
+				                         n0 != -1 ? "n0 = " + n0.ToString() + ", " : "",
+				                         n1 != -1 ? ", n1 = " + n1.ToString() + ", " : "",
+				                         n2 != -1 ? ", n2 = " + n2.ToString() + ", " : "",
+				                         result);
 				Tracer.Level--;
 			}
 #endif
@@ -406,45 +400,20 @@ namespace GNU.Gettext
 			return string.Format("[Node: Token={0}]", Token);
 		}
 
-		public void DumpNodes(string fileName, string expression)
-		{
-			StringBuilder sb = new StringBuilder();
-			sb.AppendLine(expression);
-			sb.AppendLine();
-			int level = 0;
-			IterateNodes(this, sb, ref level);
-			using (StreamWriter outfile = new StreamWriter(fileName)) {
-				outfile.Write(sb.ToString());
-			}
-		}
+		public delegate void IterateNodesDelegate(PluralFormsNode node);
 		
-		private static void IterateNodes(PluralFormsNode node, StringBuilder sb, ref int level)
+		public static void IterateNodes(PluralFormsNode node, IterateNodesDelegate doBefore, IterateNodesDelegate doAfter)
 		{
-			sb.AppendFormat("{0}: ", level++);
-			for (int i = 0; i < level; i++)
-				sb.Append("\t");
-			sb.AppendLine(node.ToString());
+			doBefore(node);
 			for(int i = 0; i < node.NodesCount; i++)
 			{
 				if (node.Nodes[i] != null)
-					IterateNodes(node.Nodes[i], sb, ref level);
+					IterateNodes(node.Nodes[i], doBefore, doAfter);
 			}
-			level--;
+			doAfter(node);
 		}
 	}
 	
-	
-	internal class EvalTracer
-	{
-		public int Level { get; set; }
-		public StringBuilder Text { get; private set; }
-		
-		public EvalTracer()
-		{
-			this.Text = new StringBuilder();
-		}
-	}
-		
 	
 	/// <summary>
 	/// Plural forms calculator.
@@ -467,19 +436,46 @@ namespace GNU.Gettext
 		}
 		
 		// input: number, returns msgstr index
-		public int Evaluate(int n)
+		/// <summary>
+		/// Evaluate the specified number.
+		/// </summary>
+		/// <param name='n'>
+		/// Number to evaluate
+		/// </param>
+		/// <param name='traceToFile'>
+		/// Debug purposes only. Trace to file an evaluation tree.
+		/// </param>
+		public long Evaluate(long n, bool traceToFile = false)
 		{
 			if (plural == null) {
 				return 0;
 			}
 #if DEBUG
-			plural.Tracer = new EvalTracer();
+			RecursiveTracer tracer = new RecursiveTracer();
+			tracer.Text.AppendFormat("Expression: {0}", expression);
+			tracer.Text.AppendLine();
+			tracer.Text.AppendFormat("Evaluate: {0}", n);
+			tracer.Text.AppendLine();
+			tracer.Text.AppendLine();
 #endif
-			int number = plural.Evaluate(n);
+			long number = plural.Evaluate(n);
 #if DEBUG
-			using (StreamWriter outfile = new StreamWriter("Evaluations.txt")) {
-				outfile.Write(plural.Tracer.Text.ToString());
-			}
+			PluralFormsNode.IterateNodes(
+				plural,
+	            delegate(PluralFormsNode node) 
+	            {
+					tracer.Text.AppendFormat("{0}: ", tracer.Level++);
+					tracer.Indent();
+					if (node.Tracer != null)
+						tracer.Text.AppendLine(node.Tracer.Text.ToString());
+				},
+				delegate(PluralFormsNode node) 
+				{
+					tracer.Level--;
+				}
+			);
+			if (traceToFile)
+				tracer.SaveToFile("Evaluations.txt");
 #endif
 			if (number < 0 || number > nplurals) {
 				return 0;
@@ -517,7 +513,26 @@ namespace GNU.Gettext
 		public void DumpNodes(string fileName)
 		{
 			if (plural != null)
-				plural.DumpNodes(fileName, expression);
+			{
+				RecursiveTracer tracer = new RecursiveTracer();
+				tracer.Text.Append(expression);
+				tracer.Text.AppendLine();
+				
+				PluralFormsNode.IterateNodes(
+					plural,
+		            delegate(PluralFormsNode node) 
+		            {
+						tracer.Text.AppendFormat("{0}: ", tracer.Level++);
+						tracer.Indent();
+						tracer.Text.AppendLine(node.ToString());
+					},
+					delegate(PluralFormsNode node) 
+					{
+						tracer.Level--;
+					}
+				);
+				tracer.SaveToFile(fileName);
+			}
 		}
 
 		internal void Init(int nplurals, PluralFormsNode plural)

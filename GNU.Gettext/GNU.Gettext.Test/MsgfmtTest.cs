@@ -32,9 +32,9 @@ namespace GNU.Gettext.Test
 			options.LibDir = "./";
 			options.Locale = new CultureInfo("fr-FR");
 			options.Verbose = true;
+			options.DebugMode = true;
 
 			AssemblyGen gen = new AssemblyGen(options);
-			gen.DeleteFile = false;
 			try
 			{
 				gen.Run();

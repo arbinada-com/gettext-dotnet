@@ -45,7 +45,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FormLocalizer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -63,6 +62,10 @@
     <ProjectReference Include="..\GNU.Gettext\GNU.Gettext.csproj">
       <Project>{6996D99C-2E0F-4EDA-9FF0-BB45F81EADC8}</Project>
       <Name>GNU.Gettext</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GNU.Gettext.WinForms\GNU.Gettext.WinForms.csproj">
+      <Project>{A458C869-B3C4-4130-8D3F-00F44548DD5C}</Project>
+      <Name>GNU.Gettext.WinForms</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

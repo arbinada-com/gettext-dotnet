@@ -17,12 +17,13 @@ namespace GNU.Gettext.Examples
     {
         static void Main(string[] args)
         {
+            System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 			ShowMessages();
             System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("fr-FR");
 			ShowMessages();
             System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("ru-RU");
 			ShowMessages();
-            Console.ReadKey();
+            //Console.ReadKey();
         }
 
 		static void ShowMessages()
@@ -41,6 +42,11 @@ namespace GNU.Gettext.Examples
             Console.WriteLine(String.Format(
 				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 5),
 				5));
+			
+            Console.WriteLine("{0} ('computers')",  catalog.GetParticularString("Computers", "Text encoding"));
+            Console.WriteLine("{0} ('military')",  catalog.GetParticularString("Military", "Text encoding"));
+            Console.WriteLine("{0} (non cotextual)",  catalog.GetString("Text encoding"));
+			
             Console.WriteLine(catalog.GetString(
 				"Here is an example of how one might continue a very long string\nfor the common case the string represents multi-line output.\n"));
 		}

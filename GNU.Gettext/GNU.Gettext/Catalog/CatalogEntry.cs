@@ -157,7 +157,7 @@ namespace GNU.Gettext
 			if (String.IsNullOrEmpty(msgid))
 				throw new Exception("Msgid cannot be empty");
 			return String.Format("{0}{1}", 
-			                     context == null ? String.Empty : context.Trim() + '|',
+			                     String.IsNullOrEmpty(context) ? String.Empty : context.Trim() + '|',
 			                     msgid);
 		}
 
@@ -346,9 +346,11 @@ namespace GNU.Gettext
 		}
 		
 		// Adds new autocomments (#. )
-		public void AddAutoComment (string comment)
+		public void AddAutoComment (string comment, bool ifNotExists = false)
 		{
-			autocomments.Add (comment);
+			if (!ifNotExists || !autocomments.Contains(comment)) {
+				autocomments.Add (comment);
+			}
 		}
 		
 		// Clears autocomments.

@@ -21,7 +21,6 @@ namespace GNU.Gettext.Msgfmt
         public Dictionary<string, string> Entries { get; private set; }
 		public string FileName { get; private set; }
 		public string AssemblyOutDir  { get; private set; }
-		public bool DeleteFile  { get; set; } // Test purposes only
 		public CmdLineOptions Options { get; private set; }
 		public string ClassName { get; private set; }
 
@@ -31,8 +30,14 @@ namespace GNU.Gettext.Msgfmt
             sw = new StringWriter();
             cw = new IndentedTextWriter(sw);
 			this.Options = options;
-			this.DeleteFile = true;
 			ClassName = GettextResourceManager.MakeResourceSetClassName(Options.BaseName, Options.Locale);
+#if DEBUG			
+            FileName = Path.Combine(
+				Options.OutDir,
+                String.Format("{0}.{1}.resources.cs", Options.BaseName, Options.Locale.Name));
+#else
+            FileName = Path.GetTempFileName();
+#endif
         }
 		#endregion
 
@@ -44,7 +49,7 @@ namespace GNU.Gettext.Msgfmt
 			Generate();
 			SaveToFile();
 			Compile();
-			if (DeleteFile && !Options.DebugMode)
+			if (!Options.DebugMode)
 				File.Delete(FileName);
         }
 
@@ -82,6 +87,12 @@ namespace GNU.Gettext.Msgfmt
 
 			cw.WriteLine("private bool TableInitialized;");
 			cw.WriteLine();
+			
+			if (catalog.HasHeader(Catalog.PluralFormsHeader))
+			{
+				cw.WriteLine("public override string PluralForms {{ get {{ return {0}; }} }}", ToConstStr(catalog.GetPluralFormsHeader()));
+				cw.WriteLine();
+			}
 
 			cw.WriteLine("protected override void ReadResources() {");
 			/* In some implementations, such as mono < 2009-02-27, the ReadResources
@@ -139,9 +150,6 @@ namespace GNU.Gettext.Msgfmt
 
 		private void SaveToFile()
 		{
-            FileName = Path.Combine(
-				Options.OutDir,
-                String.Format("{0}.{1}.resources.cs", Options.BaseName, Options.Locale.Name));
             using (StreamWriter writer = new StreamWriter(FileName, false, Encoding.UTF8))
             {
                 writer.WriteLine(sw.ToString());
@@ -179,9 +187,10 @@ namespace GNU.Gettext.Msgfmt
 				if (p.ExitCode != 0)
 				{
 					throw new Exception(String.Format(
-						"Assembly compilation failed. ExitCode: {0}\nSee source file: {1}\n{2}",
+						"Assembly compilation failed. ExitCode: {0}\nSee source file: {1}\n{2}\n{3}",
 						p.ExitCode,
 						FileName,
+						p.StandardOutput.ReadToEnd(),
 						p.StandardError.ReadToEnd()));
 				}
 			}
@@ -201,7 +210,9 @@ namespace GNU.Gettext.Msgfmt
 
 		static string ToMsgid(CatalogEntry entry)
 		{
-			return ToConstStr(entry.Key);
+			return ToConstStr(
+				entry.HasContext ? 
+				GettextResourceManager.MakeContextMsgid(entry.Context, entry.String) : entry.String);
 		}
 
 

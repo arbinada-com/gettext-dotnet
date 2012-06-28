@@ -49,6 +49,8 @@ namespace GNU.Gettext.Xgettext
 			{
 				Catalog.Project = "PACKAGE VERSION";
 			}
+			
+			this.Options.OutFile = Path.GetFullPath(this.Options.OutFile);
 		}
 		#endregion
 
@@ -74,6 +76,7 @@ namespace GNU.Gettext.Xgettext
 		
 		private void GetMessagesFromFile(string fileName)
 		{
+			fileName = Path.GetFullPath(fileName);
 			StreamReader inputFile = new StreamReader(fileName);
 			string text = inputFile.ReadToEnd();
 			inputFile.Close();
@@ -154,28 +157,32 @@ namespace GNU.Gettext.Xgettext
 					break;
 				case ExtractMode.ContextMsgid:
 					entry.Context = context;
+					entry.AddAutoComment(String.Format("Context: {0}", context), true);
 					break;
 				}
 				
 				// Add source reference if it not exists yet
-				string sourceRef = String.Format("{0}: {1}", sourceFile.Replace('\\', '/'), match.Index);
-				bool refFound = false;
-				foreach(string refStr in entry.References)
-				{
-					if (refStr == sourceRef)
-					{
-						refFound = true;
-						break;
-					}
-				}
-				if (!refFound)
-					entry.AddReference(sourceRef);
+				Uri fileUri = new Uri(sourceFile);
+				Uri outDirUri = new Uri(Path.GetDirectoryName(Options.OutFile));
+				Uri relativeUri = outDirUri.MakeRelativeUri(fileUri);
+				// Each reference is in the form "path_name:line_number"
+				string sourceRef = String.Format("{0}:{1}", relativeUri.ToString(), CalcLineNumber(text, match.Index));
+				entry.AddReference(sourceRef); // Wont be added if exists
 				
 				if (!entryFound)
-				{
 					Catalog.AddItem(entry);
-				}
 			}
+		}
+		
+		private int CalcLineNumber(string text, int pos)
+		{
+			if (pos >= text.Length)
+				pos = text.Length - 1;
+			int line = 0;
+			for (int i = 0; i < pos; i++)
+				if (text[i] == '\n')
+					line++;
+			return line + 1;
 		}
 		
 		private void UpdatePluralEntry(CatalogEntry entry, string msgidPlural)

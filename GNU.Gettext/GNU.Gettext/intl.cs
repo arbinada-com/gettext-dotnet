@@ -336,7 +336,7 @@ namespace GNU.Gettext
             foreach (GettextResourceSet rs in GetResourceSetsFor(culture))
             {
                 String translation = rs.GetString(msgid);
-                if (translation != null)
+                if (!String.IsNullOrEmpty(translation))
                     return translation;
             }
             // Fallback.
@@ -360,7 +360,7 @@ namespace GNU.Gettext
             foreach (GettextResourceSet rs in GetResourceSetsFor(culture))
             {
                 String translation = rs.GetPluralString(msgid, msgidPlural, n);
-                if (translation != null)
+                if (!String.IsNullOrEmpty(translation))
                     return translation;
             }
             // Fallback: Germanic plural form.
@@ -368,6 +368,11 @@ namespace GNU.Gettext
         }
 
         // ======================== Public Methods ========================
+		
+		public static string MakeContextMsgid(String msgctxt, String msgid)
+		{
+			return msgctxt + "\u0004" + msgid;
+		}
 
         /// <summary>
         /// Returns the translation of <paramref name="msgid"/> in the context
@@ -381,11 +386,14 @@ namespace GNU.Gettext
         ///          <paramref name="msgid"/> if none is found</returns>
         public String GetParticularString(String msgctxt, String msgid, CultureInfo culture)
         {
-            String combined = msgctxt + "\u0004" + msgid;
             foreach (GettextResourceSet rs in GetResourceSetsFor(culture))
             {
-                String translation = rs.GetString(combined);
-                if (translation != null)
+                String translation = rs.GetString(MakeContextMsgid(msgctxt, msgid));
+                if (!String.IsNullOrEmpty(translation))
+                    return translation;
+				// Fallback to non cotextual translation
+				translation = rs.GetString(msgid);
+                if (!String.IsNullOrEmpty(translation))
                     return translation;
             }
             // Fallback.
@@ -409,11 +417,14 @@ namespace GNU.Gettext
         ///          <paramref name="msgidPlural"/> if none is found</returns>
         public virtual String GetParticularPluralString(String msgctxt, String msgid, String msgidPlural, long n, CultureInfo culture)
         {
-            String combined = msgctxt + "\u0004" + msgid;
             foreach (GettextResourceSet rs in GetResourceSetsFor(culture))
             {
-                String translation = rs.GetPluralString(combined, msgidPlural, n);
-                if (translation != null)
+                String translation = rs.GetPluralString(MakeContextMsgid(msgctxt, msgid), msgidPlural, n);
+                if (!String.IsNullOrEmpty(translation))
+                    return translation;
+				// Fallback to non cotextual translation
+				translation = rs.GetPluralString(msgid, msgidPlural, n);
+                if (!String.IsNullOrEmpty(translation))
                     return translation;
             }
             // Fallback: Germanic plural form.
@@ -558,6 +569,17 @@ namespace GNU.Gettext
             : base(fileName)
         {
         }
+		
+		/// <summary>
+		/// Constant for default plural forms (English/French/Germany).
+		/// </summary>
+		public const string DefaultPluralForms = "nplurals=2; plural=(n != 1);";
+		
+        public virtual string PluralForms 
+		{
+			get { return DefaultPluralForms; }
+		}
+
 
         /// <summary>
         /// Returns the translation of <paramref name="msgid"/>.
@@ -632,11 +654,17 @@ namespace GNU.Gettext
 
         /// <summary>
         /// Returns the index of the plural form to be chosen for a given number.
-        /// The default implementation is the Germanic plural formula:
-        /// zero for <paramref name="n"/> == 1, one for <paramref name="n"/> != 1.
+        /// The default implementation is the Englis/Germanic/French plural formula:
+        /// See <see cref="DefaultPluralForms"/>
         /// </summary>
         protected virtual long PluralEval(long n)
         {
+			PluralFormsCalculator pfc = PluralFormsCalculator.Make(PluralForms);
+			if (pfc != null)
+				return pfc.Evaluate(n);
+			pfc = PluralFormsCalculator.Make(DefaultPluralForms);
+			if (pfc != null)
+				return pfc.Evaluate(n);
             return (n == 1 ? 0 : 1);
         }
 

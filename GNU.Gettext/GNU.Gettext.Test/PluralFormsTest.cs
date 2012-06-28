@@ -7,7 +7,7 @@ namespace GNU.Gettext.Test
 	public class PluralFormsTest
 	{
 		[Test()]
-		public void SimpleParseTest()
+		public void TwoFormsEvalTest()
 		{
 			string expr = "nplurals=2; plural=(n != 1)";
 			Assert.IsNotNull(PluralFormsCalculator.Make(expr + "\\n"));
@@ -20,7 +20,8 @@ namespace GNU.Gettext.Test
 			
 			Assert.AreEqual(1, pfc.Evaluate(0), "Case 1");
 			Assert.AreEqual(0, pfc.Evaluate(1), "Case 2");
-			Assert.AreEqual(1, pfc.Evaluate(23), "Case 3");
+			Assert.AreEqual(1, pfc.Evaluate(5), "Case 3");
+			Assert.AreEqual(1, pfc.Evaluate(23), "Case 4");
 		}
 		
 		[Test()]
@@ -31,12 +32,12 @@ namespace GNU.Gettext.Test
 			Assert.IsNotNull(pfc, "Parse failed");
 			Assert.AreEqual(3, pfc.NPlurals, "Plurals count");
 			
-			pfc.DumpNodes("./EvalNodes.txt");
+			//pfc.DumpNodes("./EvalNodes.txt");
 			
-//			Assert.AreEqual(0, pfc.Evaluate(1), "Case 1");
-			Assert.AreEqual(0, pfc.Evaluate(11), "Case 2");
-//			Assert.AreEqual(1, pfc.Evaluate(3), "Case 3");
-//			Assert.AreEqual(2, pfc.Evaluate(7), "Case 4");
+			Assert.AreEqual(0, pfc.Evaluate(1/*, true*/), "Case 1");
+			Assert.AreEqual(1, pfc.Evaluate(3), "Case 2");
+			Assert.AreEqual(2, pfc.Evaluate(7), "Case 3");
+			Assert.AreEqual(2, pfc.Evaluate(11), "Case 4");
 		}
 		
 		[Test()]
@@ -49,9 +50,9 @@ namespace GNU.Gettext.Test
 			Assert.IsNotNull(pfc, "Parse failed");
 			Assert.AreEqual(3, pfc.NPlurals, "Plurals count");
 			
-//			Assert.AreEqual(0, pfc.Evaluate(11), "Case 1");
-//			Assert.AreEqual(1, pfc.Evaluate(3), "Case 2");
-//			Assert.AreEqual(2, pfc.Evaluate(7), "Case 3");
+			Assert.AreEqual(0, pfc.Evaluate(1), "Case 1");
+			Assert.AreEqual(1, pfc.Evaluate(3), "Case 2");
+			Assert.AreEqual(2, pfc.Evaluate(7), "Case 3");
 		}
 	}
 }

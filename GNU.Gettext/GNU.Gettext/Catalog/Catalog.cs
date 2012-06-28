@@ -81,14 +81,17 @@ namespace GNU.Gettext
 			}
 		}
 		
+		
+		public const string PluralFormsHeader = "Plural-Forms";
+		
 		public string GetPluralFormsHeader()
 		{
 			// e.g. "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ?
 			//       0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-			if (HasHeader ("Plural-Forms")) {
-				return GetHeader ("Plural-Forms");
+			if (HasHeader (PluralFormsHeader)) {
+				return GetHeader (PluralFormsHeader);
 			}
-			return "nplurals=2; plural=(n != 1)\\n";
+			return "nplurals=2; plural=(n != 1);\\n";
 		}
 		
 		

@@ -1,43 +1,74 @@
 # Copyright (C) 2004 Free Software Foundation, Inc.
 # This file is distributed under the same license as the hello-csharp package.
-# Copyright (C) Serguei Tarassov <st@arbinada.com>, 2012
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: hello-csharp 0.14.1\n"
+"Project-Id-Version: Examples.Hello\n"
 "Report-Msgid-Bugs-To: bug-gnu-gettext@gnu.org\n"
-"PO-Revision-Date: 2012-06-26 18:01+0100\n"
+"POT-Creation-Date: 2012-06-28 14:56:59+0200\n"
+"PO-Revision-Date: 2012-06-28 14:58+0100\n"
 "Last-Translator: Serguei TARASSOV <st@arbinada.com>\n"
-"Language-Team: Russian <ru@li.org>\n"
-"Language: ru\n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
-"POT-Creation-Date: \n"
+"X-Poedit-Language: Russian\n"
+"X-Poedit-Country: RUSSIAN FEDERATION\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
-#: Program.cs:14
+#: Form1.cs:79
+#: Form1.cs:107
 msgid "Hello, world!"
 msgstr "Здравствуй, мир!"
 
-#: Program.cs:17
-#, csharp-format
-msgid "This program is running as process number \"{0}\"."
-msgstr "Эта программа запущена под процессом номер \"{0}\"."
+#: Form1.cs:84
+msgid "en-US"
+msgstr ""
 
-#: Program.cs:26
-#, csharp-format
-msgid "found {0} similar word"
-msgid_plural "found {0} similar words"
-msgstr[0] "{0} похожее слово найдено"
-msgstr[1] "{0} похожих слов найдено"
-msgstr[2] "{0} похожих слова найдено"
+#: Form1.cs:91
+msgid "fr-FR"
+msgstr ""
 
-#, csharp-format
+#: Form1.cs:98
+msgid "ru-RU"
+msgstr ""
+
+#: Form1.cs:161
 msgid ""
 "Here is an example of how one might continue a very long string\n"
 "for the common case the string represents multi-line output.\n"
 msgstr ""
 "Вот пример как можно продолжить длинную фразу\n"
 "в общем случае она располагается на нескольких строках.\n"
+
+#: Form1.cs:40
+msgid "Text encoding"
+msgstr "Кодирование текста"
+
+#: Form1.cs:27
+msgid "This program is running as process number \"{0}\"."
+msgstr "Эта программа запущена под процессом номер \"{0}\"."
+
+#: Form1.cs:30
+#: Form1.cs:33
+#: Form1.cs:36
+msgid "found {0} similar word"
+msgid_plural "found {0} similar words"
+msgstr[0] "{0} похожее слово найдено"
+msgstr[1] "{0} похожих слова найдено"
+msgstr[2] "{0} похожих слов найдено"
+
+#. Context: Computers
+#: Form1.cs:38
+msgctxt "Computers"
+msgid "Text encoding"
+msgstr "Кодировка текста"
+
+#. Context: Military
+#: Form1.cs:39
+msgctxt "Military"
+msgid "Text encoding"
+msgstr "Шифрование текста"
 

@@ -25,7 +25,7 @@ namespace GNU.Gettext.Test
 			}
 			
 			Options options = new Options();
-			options.InputFile = @"\Test\File\Name.cs"; // File is not used, feed the plain text
+			options.InputFile = @"C:\Test\File\Name.cs"; // File wont be used, feed the plain text
 			options.OutFile = @"./Test.pot";
 			options.Overwrite = true;
 			ExtractorCsharp extractor = new ExtractorCsharp(options);
