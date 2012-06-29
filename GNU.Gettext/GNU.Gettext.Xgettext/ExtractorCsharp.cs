@@ -162,11 +162,10 @@ namespace GNU.Gettext.Xgettext
 				}
 				
 				// Add source reference if it not exists yet
-				Uri fileUri = new Uri(sourceFile);
-				Uri outDirUri = new Uri(Path.GetDirectoryName(Options.OutFile));
-				Uri relativeUri = outDirUri.MakeRelativeUri(fileUri);
 				// Each reference is in the form "path_name:line_number"
-				string sourceRef = String.Format("{0}:{1}", relativeUri.ToString(), CalcLineNumber(text, match.Index));
+				string sourceRef = String.Format("{0}:{1}", 
+				                                 Utils.FileUtils.GetRelativeUri(Path.GetFullPath(sourceFile), Path.GetFullPath(Options.OutFile)), 
+				                                 CalcLineNumber(text, match.Index));
 				entry.AddReference(sourceRef); // Wont be added if exists
 				
 				if (!entryFound)

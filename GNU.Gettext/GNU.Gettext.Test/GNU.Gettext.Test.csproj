@@ -52,6 +52,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="XgettextTest.cs" />
     <Compile Include="PluralFormsTest.cs" />
+    <Compile Include="UtilsTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
