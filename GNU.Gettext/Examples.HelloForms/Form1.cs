@@ -20,7 +20,9 @@ namespace GNU.Gettext.Examples
 
 		private void SetTexts()
 		{
-            GettextResourceManager catalog = new GettextResourceManager("Examples.HelloForms.Messages");
+            GettextResourceManager catalog = new GettextResourceManager();
+            // if satellite assemblies have another base name use GettextResourceManager("Examples.HelloForms.Messages") constructor
+			// If you call from another assembly, use GettextResourceManager(anotherAssembly) constructor
 			GNU.Gettext.WinForms.Localizer.Localize(this, catalog);
 
 			// Manually formatted strings

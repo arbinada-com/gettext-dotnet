@@ -70,6 +70,27 @@ namespace GNU.Gettext
 
         // ======================== Public Constructors ========================
 
+		/// <summary>
+		/// Default constructor use assembly name + ".Messages" as base name to locate satellite assemblies.
+		/// </summary>
+        public GettextResourceManager()
+            : this(Assembly.GetCallingAssembly())
+        {
+        }
+
+		/// <summary>
+		/// Same as default constructor but can be called from assembly other than calling one.
+		/// </summary>
+		/// <param name='assembly'>
+		/// Assembly for locate satellites.
+		/// </param>
+        public GettextResourceManager(Assembly assembly)
+            : base(assembly.GetName().Name + ".Messages",
+			       assembly,
+			       typeof(GettextResourceSet))
+        {
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
