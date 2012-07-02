@@ -122,7 +122,7 @@ namespace GNU.Gettext.Msgfmt
 
             options.Mode = Mode.SateliteAssembly;
 			options.Verbose = false;
-			options.CompilerName = "mcs";
+			options.CompilerName = Path.DirectorySeparatorChar == '/' ? "mcs" : "csc";
 			options.ShowUsage = false;
 			options.DebugMode = false;
 

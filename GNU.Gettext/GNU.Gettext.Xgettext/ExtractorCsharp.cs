@@ -44,7 +44,11 @@ namespace GNU.Gettext.Xgettext
 			this.Options = options;
 			this.Catalog = new Catalog();
 			if (!Options.Overwrite && File.Exists(Options.OutFile))
+			{
 				Catalog.Load(Options.OutFile);
+				foreach(CatalogEntry entry in Catalog)
+					entry.ClearReferences();
+			}
 			else
 			{
 				Catalog.Project = "PACKAGE VERSION";
