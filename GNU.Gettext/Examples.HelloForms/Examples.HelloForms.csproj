@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>GNU.Gettext.Examples</RootNamespace>
-    <AssemblyName>GNU.Gettext.Examples.HelloForms</AssemblyName>
+    <AssemblyName>Examples.HelloForms</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
