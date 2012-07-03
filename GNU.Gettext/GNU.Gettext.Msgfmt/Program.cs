@@ -288,6 +288,7 @@ namespace GNU.Gettext.Msgfmt
             Console.WriteLine("   -LPATH, --lib-dir=PATH         Path to directory where GNU.Gettext.dll is located");
             Console.WriteLine("   -cNAME, --compiler-name=NAME   C# compiler name. Default is \"mcs\".");
             Console.WriteLine("                                  Check that compiler directory is in PATH environment variable for creating an assembly");
+            Console.WriteLine("   --check-format                 Check C# format strings and raise error if invalid format is detected");
             Console.WriteLine("   -v, --verbose                  Verbose output");
         }
     }
