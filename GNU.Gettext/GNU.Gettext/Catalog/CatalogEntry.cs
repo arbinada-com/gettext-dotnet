@@ -280,7 +280,7 @@ namespace GNU.Gettext
 				if (String.IsNullOrEmpty (value))
 					return;
 				
-				string[] tokens = value.Split (',');
+				string[] tokens = value.TrimStart(new char[] {'#', ','}).Split (',');
 				foreach (string token in tokens) {
 					if (token.Trim () == "fuzzy")
 						isFuzzy = true;
@@ -335,8 +335,9 @@ namespace GNU.Gettext
 		// flag when called with "foo" as argument.
 		public bool IsInFormat (string format)
 		{
-			string lookingFor;
-			lookingFor = String.Format ("{0}-format", format);
+			if (String.IsNullOrEmpty(moreFlags))
+				return false;
+			string lookingFor = String.Format ("{0}-format", format);
 			string[] tokens = moreFlags.Split (',');
 			foreach (string token in tokens) {
 				if (token.Trim () == lookingFor)

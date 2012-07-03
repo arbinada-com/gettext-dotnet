@@ -45,13 +45,39 @@ namespace GNU.Gettext.Msgfmt
         {
 			catalog = new Catalog();
 			catalog.Load(Options.InputFile);
-
+			Check();
 			Generate();
 			SaveToFile();
 			Compile();
 			if (!Options.DebugMode)
 				File.Delete(FileName);
         }
+		
+		private void Check()
+		{
+			if (!Options.CheckFormat)
+				return;
+			foreach(CatalogEntry entry in catalog)
+			{
+				if (entry.IsInFormat("csharp"))
+				{
+					ValidateFormatString(entry.String);
+					ValidateFormatString(entry.PluralString);
+					for (int i = 0; i < entry.TranslationsCount; i++)
+						ValidateFormatString(entry.GetTranslation(i));
+				}
+			}
+		}
+		
+		private void ValidateFormatString(string s)
+		{
+			FormatValidator v = new FormatValidator(s);
+			FormatValidateResult result = v.Validate();
+			if (!result.Result)
+			{
+				throw new FormatException(String.Format("Invalid sting format: '{0}'\n{1}", s, result.ErrorMessage));
+			}
+		}
 
 		private void Generate()
 		{

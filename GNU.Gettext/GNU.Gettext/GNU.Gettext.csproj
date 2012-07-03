@@ -45,6 +45,7 @@
     <Compile Include="Catalog\PluralForms.cs" />
     <Compile Include="Catalog\RecursiveTracer.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="FormatValidator.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

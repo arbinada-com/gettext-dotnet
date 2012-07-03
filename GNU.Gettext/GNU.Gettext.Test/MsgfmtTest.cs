@@ -21,14 +21,10 @@ namespace GNU.Gettext.Test
 			options.InputFile = "../../../Examples.Hello/po/fr.po";
 			options.BaseName = "Examples.Hello.Messages";
 			options.OutDir = "../../../Examples.Hello/bin/Debug";
-			if (System.IO.Path.DirectorySeparatorChar == '\\')
-			{
+			if (Path.DirectorySeparatorChar == '\\')
 				options.CompilerName = "csc";
-			}
 			else
-			{
 				options.CompilerName = "mcs";
-			}
 			options.LibDir = "./";
 			options.Locale = new CultureInfo("fr-FR");
 			options.Verbose = true;

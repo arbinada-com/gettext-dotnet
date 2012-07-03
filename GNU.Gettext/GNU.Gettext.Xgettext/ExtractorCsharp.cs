@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace GNU.Gettext.Xgettext
 {
@@ -147,6 +148,25 @@ namespace GNU.Gettext.Xgettext
 				if (!entryFound)
 					entry = new CatalogEntry(Catalog, msgid, msgidPlural);
 				
+				// Add source reference if it not exists yet
+				// Each reference is in the form "path_name:line_number"
+				string sourceRef = String.Format("{0}:{1}", 
+				                                 Utils.FileUtils.GetRelativeUri(Path.GetFullPath(sourceFile), Path.GetFullPath(Options.OutFile)), 
+				                                 CalcLineNumber(text, match.Index));
+				entry.AddReference(sourceRef); // Wont be added if exists
+				
+				if (FormatValidator.IsFormatString(msgid) || FormatValidator.IsFormatString(msgidPlural))
+				{
+					if (!entry.IsInFormat("csharp"))
+						entry.Flags += ", csharp-format";
+					Trace.WriteLineIf(
+						!FormatValidator.IsValidFormatString(msgid),
+						String.Format("Warning: string format may be invalid: '{0}'\nSource: {1}", msgid, sourceRef));
+					Trace.WriteLineIf(
+						!FormatValidator.IsValidFormatString(msgidPlural),
+						String.Format("Warning: plural string format may be invalid: '{0}'\nSource: {1}", msgidPlural, sourceRef));
+				}
+				
 				switch(mode)
 				{
 				case ExtractMode.Msgid:
@@ -164,13 +184,6 @@ namespace GNU.Gettext.Xgettext
 					entry.AddAutoComment(String.Format("Context: {0}", context), true);
 					break;
 				}
-				
-				// Add source reference if it not exists yet
-				// Each reference is in the form "path_name:line_number"
-				string sourceRef = String.Format("{0}:{1}", 
-				                                 Utils.FileUtils.GetRelativeUri(Path.GetFullPath(sourceFile), Path.GetFullPath(Options.OutFile)), 
-				                                 CalcLineNumber(text, match.Index));
-				entry.AddReference(sourceRef); // Wont be added if exists
 				
 				if (!entryFound)
 					Catalog.AddItem(entry);

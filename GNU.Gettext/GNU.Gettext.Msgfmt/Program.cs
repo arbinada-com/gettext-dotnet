@@ -26,6 +26,7 @@ namespace GNU.Gettext.Msgfmt
         public CultureInfo Locale { get; set; }
         public string BaseName { get; set; }
 		public Mode Mode { get; set; }
+		public bool CheckFormat { get; set; }
 		public bool Verbose { get; set; }
 		public bool ShowUsage { get; set; }
 		public bool DebugMode { get; set; }
@@ -55,7 +56,8 @@ namespace GNU.Gettext.Msgfmt
 					new LongOpt("lib-dir", Argument.Required, null, 'L'),
 					new LongOpt("verbose", Argument.No, null, 'v'),
 					new LongOpt("compiler-name", Argument.Required, null, 'c'),
-					new LongOpt("debug", Argument.No, null, 0)
+					new LongOpt("debug", Argument.No, null, 0),
+					new LongOpt("check-format", Argument.No, null, 1)
 				};
 				return lopts;
 			}
@@ -124,6 +126,7 @@ namespace GNU.Gettext.Msgfmt
 			options.Verbose = false;
 			options.CompilerName = Path.DirectorySeparatorChar == '/' ? "mcs" : "csc";
 			options.ShowUsage = false;
+			options.CheckFormat = false;
 			options.DebugMode = false;
 
             int option;
@@ -134,6 +137,9 @@ namespace GNU.Gettext.Msgfmt
 				case 0:
 					options.DebugMode = true;
 					Trace.WriteLine("Debug mode is ON");
+					break;
+				case 1:
+					options.CheckFormat = true;
 					break;
 				case ':':
 					message.AppendFormat("Option {0} requires an argument",
