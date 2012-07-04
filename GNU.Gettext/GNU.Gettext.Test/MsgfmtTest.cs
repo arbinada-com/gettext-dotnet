@@ -16,9 +16,9 @@ namespace GNU.Gettext.Test
 		[Test()]
 		public void AssemblyGenerationTest()
 		{
-			CmdLineOptions options = new CmdLineOptions();
+			Options options = new Options();
 			options.Mode = Mode.SateliteAssembly;
-			options.InputFile = "../../../Examples.Hello/po/fr.po";
+			options.InputFiles.Add("../../../Examples.Hello/po/fr.po");
 			options.BaseName = "Examples.Hello.Messages";
 			options.OutDir = "../../../Examples.Hello/bin/Debug";
 			if (Path.DirectorySeparatorChar == '\\')
@@ -44,9 +44,9 @@ namespace GNU.Gettext.Test
 		[Test()]
 		public void ResourcesGenerationTest()
 		{
-			CmdLineOptions options = new CmdLineOptions();
+			Options options = new Options();
 			options.Mode = Mode.Resources;
-			options.InputFile = "./Data/Test01.po";
+			options.InputFiles.Add("./Data/Test01.po");
 			options.OutFile = "./Messages.fr-FR.resources";
 			options.Verbose = true;
 

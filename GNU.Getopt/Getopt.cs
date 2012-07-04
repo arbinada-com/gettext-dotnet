@@ -814,7 +814,7 @@ namespace GNU.Getopt
 		/// </summary>
 		public string Optarg
 		{
-			get	{ return this.optarg; }
+			get	{ return this.optarg.Trim(); }
 		}
 
 		/// <summary>

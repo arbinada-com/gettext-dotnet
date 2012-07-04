@@ -21,11 +21,11 @@ namespace GNU.Gettext.Msgfmt
         public Dictionary<string, string> Entries { get; private set; }
 		public string FileName { get; private set; }
 		public string AssemblyOutDir  { get; private set; }
-		public CmdLineOptions Options { get; private set; }
+		public Options Options { get; private set; }
 		public string ClassName { get; private set; }
 
 		#region Constructors
-        public AssemblyGen(CmdLineOptions options)
+        public AssemblyGen(Options options)
         {
             sw = new StringWriter();
             cw = new IndentedTextWriter(sw);
@@ -44,7 +44,12 @@ namespace GNU.Gettext.Msgfmt
         public void Run()
         {
 			catalog = new Catalog();
-			catalog.Load(Options.InputFile);
+			foreach(string fileName in Options.InputFiles)
+			{
+				Catalog temp = new Catalog();
+				temp.Load(fileName);
+				catalog.Append(temp);
+			}
 			Check();
 			Generate();
 			SaveToFile();

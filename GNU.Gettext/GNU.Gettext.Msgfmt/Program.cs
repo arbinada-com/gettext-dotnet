@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Globalization;
 using System.Diagnostics;
@@ -15,10 +16,14 @@ namespace GNU.Gettext.Msgfmt
         SateliteAssembly
     }
 
-    public class CmdLineOptions
+    public class Options
     {
+		public Options()
+		{
+			InputFiles = new List<string>();
+		}
+
         public string CompilerName { get; set; }
-        public string InputFile { get; set; }
         public string OutFile { get; set; }
         public string OutDir { get; set; }
         public string LibDir { get; set; }
@@ -34,11 +39,12 @@ namespace GNU.Gettext.Msgfmt
 		{
 			get { return !String.IsNullOrEmpty(BaseName); }
 		}
+		public List<string> InputFiles { get; private set; }
     }
 
     public class Program
     {
-		public const String SOpts = "-:hravi:o:d:l:L:b:c:";
+		public const String SOpts = "-:hvo:d:r:l:L:c:";
 		public static LongOpt[] LOpts
 		{
 			get
@@ -46,18 +52,15 @@ namespace GNU.Gettext.Msgfmt
 				LongOpt[] lopts = new LongOpt[]
 				{
 					new LongOpt("help", Argument.No, null, 'h'),
-					new LongOpt("mode-resource", Argument.No, null, 'r'),
-					new LongOpt("mode-assembly", Argument.No, null, 'a'),
-					new LongOpt("input-file", Argument.Required, null, 'i'),
+					new LongOpt("resource", Argument.Required, null, 'r'),
 					new LongOpt("output-file", Argument.Required, null, 'o'),
-					new LongOpt("output-dir", Argument.Required, null, 'd'),
 					new LongOpt("locale", Argument.Required, null, 'l'),
-					new LongOpt("base-name", Argument.Required, null, 'b'),
 					new LongOpt("lib-dir", Argument.Required, null, 'L'),
 					new LongOpt("verbose", Argument.No, null, 'v'),
 					new LongOpt("compiler-name", Argument.Required, null, 'c'),
-					new LongOpt("debug", Argument.No, null, 0),
-					new LongOpt("check-format", Argument.No, null, 1)
+					new LongOpt("debug", Argument.No, null, 4),
+					new LongOpt("check-format", Argument.No, null, 2),
+					new LongOpt("csharp-resources", Argument.No, null, 3)
 				};
 				return lopts;
 			}
@@ -68,7 +71,7 @@ namespace GNU.Gettext.Msgfmt
 			Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
 			
 			StringBuilder message;
-            CmdLineOptions options = new CmdLineOptions();
+            Options options = new Options();
 			if (args.Length == 0)
 			{
                 PrintUsage();
@@ -112,7 +115,7 @@ namespace GNU.Gettext.Msgfmt
 			return 0;
 		}
 
-		public static bool GetOptions(string[] args, String sopts, LongOpt[] lopts, CmdLineOptions options, out StringBuilder message)
+		public static bool GetOptions(string[] args, String sopts, LongOpt[] lopts, Options options, out StringBuilder message)
 		{
 			message = new StringBuilder();
             Getopt.Getopt getopt = new Getopt.Getopt(
@@ -134,12 +137,18 @@ namespace GNU.Gettext.Msgfmt
             {
                 switch (option)
                 {
-				case 0:
+				case 1:
+					options.InputFiles.Add(getopt.Optarg);
+					break;
+				case 2:
+					options.CheckFormat = true;
+					break;
+				case 3:
+					options.Mode = Mode.Resources;
+					break;
+				case 4:
 					options.DebugMode = true;
 					Trace.WriteLine("Debug mode is ON");
-					break;
-				case 1:
-					options.CheckFormat = true;
 					break;
 				case ':':
 					message.AppendFormat("Option {0} requires an argument",
@@ -147,15 +156,9 @@ namespace GNU.Gettext.Msgfmt
 					return false;
 				case '?':
 					break; // getopt() already printed an error
-				case 'a':
-					options.Mode = Mode.SateliteAssembly;
-					break;
 				case 'r':
-					options.Mode = Mode.Resources;
+                    options.BaseName = getopt.Optarg;
 					break;
-				case 'i':
-                    options.InputFile = getopt.Optarg;
-                    break;
                 case 'o':
                     options.OutFile = getopt.Optarg;
                     break;
@@ -167,9 +170,6 @@ namespace GNU.Gettext.Msgfmt
                     break;
                 case 'L':
                     options.LibDir = getopt.Optarg;
-                    break;
-                case 'b':
-                    options.BaseName = getopt.Optarg;
                     break;
                 case 'c':
                     options.CompilerName = getopt.Optarg;
@@ -195,22 +195,28 @@ namespace GNU.Gettext.Msgfmt
 			return true;
 		}
 
-		public static bool AnalyseOptions(CmdLineOptions options, out StringBuilder message)
+		public static bool AnalyseOptions(Options options, out StringBuilder message)
 		{
 			message = new StringBuilder();
             bool accepted = true;
             try
             {
-                if (String.IsNullOrEmpty(options.InputFile))
+                if (options.InputFiles.Count == 0)
                 {
-                    message.Append("Undefined input file name");
+                    message.Append("You must specify at least one input file");
                     accepted = false;
                 }
 
-                if (accepted && !File.Exists(options.InputFile))
-                {
-                    message.AppendFormat("File {0} not found", options.InputFile);
-                    accepted = false;
+                if (accepted)
+				{
+					foreach(string fileName in options.InputFiles)
+					{
+						if (!File.Exists(fileName))
+						{
+							message.AppendFormat("File {0} not found", fileName);
+                    		accepted = false;
+						}
+					}
                 }
 
 
@@ -272,24 +278,28 @@ namespace GNU.Gettext.Msgfmt
 
         private static void PrintUsage()
         {
-            Console.WriteLine("Gettext .NET tools");
-            Console.WriteLine("Custom message formatter from .po to .resources file or to satellite assembly DLL");
+            Console.WriteLine("Msgfmt (Gettext.NET tools)");
+            Console.WriteLine("Custom message formatter from *.po to satellite assembly DLL or to *.resources files");
             Console.WriteLine();
-            Console.WriteLine("Usage: {0}[.exe] [OPTIONS]",
+            Console.WriteLine("Usage:\n" +
+            	"    {0}[.exe] [OPTIONS] filename.po ...\n",
                 Assembly.GetExecutingAssembly().GetName().Name);
-            Console.WriteLine("   -a, --mode-assembly            Generate satellite assembly DLL (default)");
-            Console.WriteLine("   -r, --mode-resource            Generate .resources file");
-            Console.WriteLine("   -iFILE, --input-file=FILE       Input PO file name (must be in PO format)");
-            Console.WriteLine("   -oFILE, --output-file=FILE     Output file name for .NET resources file. Ignored when -d is specified");
-            Console.WriteLine("   -dPATH, --output-dir=PATH      Output root directory for satellite assemblies");
-            Console.WriteLine("   -lLOCALE, --locale=LOCALE      .NET locale (culture) name i.e. \"en-US\", \"en\", \"fr-FR\" etc.");
-            Console.WriteLine("                                  Used for satellite assemblies' subdirectories");
-            Console.WriteLine("   -bNAME, --base-name=NAME       Base name for resources catalog i.e. \"Messages\"");
-            Console.WriteLine("   -LPATH, --lib-dir=PATH         Path to directory where GNU.Gettext.dll is located");
-            Console.WriteLine("   -cNAME, --compiler-name=NAME   C# compiler name. Default is \"mcs\".");
-            Console.WriteLine("                                  Check that compiler directory is in PATH environment variable for creating an assembly");
-            Console.WriteLine("   --check-format                 Check C# format strings and raise error if invalid format is detected");
-            Console.WriteLine("   -v, --verbose                  Verbose output");
+            Console.WriteLine(
+				"   -r resource, --resource=resource    Base name for resources catalog i.e. \"GNU.App1.Messages\"\n\n" +
+            	"   -o file, --output-file=file         Output file name for .NET resources file.\n" +
+            	"                                       Ignored when -d is specified\n\n" +
+            	"   -d directory                        Output directory for satellite assemblies.\n" +
+            	"                                       Subdirectory for specified locale will be created\n\n" +
+            	"   -l locale, --locale=locale          .NET locale (culture) name i.e. \"en-US\", \"en\" etc.\n\n" +
+            	"   -L path, --lib-dir=path             Path to directory where GNU.Gettext.dll is located (need to compile DLL)\n\n" +
+            	"   --compiler-name=name                C# compiler name.\n" +
+            	"                                       Defaults are \"mcs\" for Mono and \"csc\" for Windows.NET.\n" +
+            	"                                       On Windows you should check if compiler directory is in PATH environment variable\n\n" +
+            	"   --check-format                      Verify C# format strings and raise error if invalid format is detected\n\n" +
+            	"   --csharp-resources                  Convert a PO file to a .resources file instead of satellite assembly\n\n" +
+            	"   -v, --verbose                       Verbose output\n\n" +
+            	"   -h, --help                          Display this help and exit"
+				);
         }
     }
 }

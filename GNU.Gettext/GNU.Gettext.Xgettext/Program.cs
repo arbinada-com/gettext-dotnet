@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
@@ -9,28 +10,27 @@ using GNU.Getopt;
 namespace GNU.Gettext.Xgettext
 {
 	
-	public enum InputMode
-	{
-		File,
-		Dir
-	}
-	
 	public class Options
 	{
-		public string InputFile { get; set; }
-		public string InputDir { get; set; }
+		public Options()
+		{
+			InputFiles = new List<string>();
+			InputDirs = new List<string>();
+			this.OutFile = "messages.pot";
+		}
+
         public string OutFile { get; set; }
 		public bool Overwrite { get; set; }
 		public bool Recursive { get; set; }
 		public bool Verbose { get; set; }
 		public bool ShowUsage { get; set; }
-        public string FileMask { get; set; }
-		public InputMode InputMode { get; set; }
+		public List<string> InputFiles { get; private set; }
+		public List<string> InputDirs { get; private set; }
 	}
 	
 	class MainClass
 	{
-		public const String SOpts = "-:hwri:d:o:v";
+		public const String SOpts = "-:hjD:o:v";
 		public static LongOpt[] LOpts
 		{
 			get
@@ -38,11 +38,10 @@ namespace GNU.Gettext.Xgettext
 				LongOpt[] lopts = new LongOpt[] 
 				{
 					new LongOpt("help", Argument.No, null, 'h'),
-					new LongOpt("overwrite", Argument.No, null, 'w'),
-					new LongOpt("recursive", Argument.No, null, 'r'),
-					new LongOpt("input-file", Argument.Required, null, 'i'),
-					new LongOpt("input-dir", Argument.Required, null, 'd'),
-					new LongOpt("output-file", Argument.Required, null, 'o'),
+					new LongOpt("join-existing", Argument.No, null, 'j'),
+					new LongOpt("recursive", Argument.No, null, 2),
+					new LongOpt("directory", Argument.Required, null, 'D'),
+					new LongOpt("output", Argument.Required, null, 'o'),
 					new LongOpt("verbose", Argument.No, null, 'v')
 				};
 				return lopts;
@@ -89,7 +88,7 @@ namespace GNU.Gettext.Xgettext
                 return 1;
             }
 			
-			Console.WriteLine("Telmplate file '{0}' generated", options.OutFile);
+			Console.WriteLine("Template file '{0}' generated", options.OutFile);
 			return 0;
 			
 		}
@@ -107,30 +106,33 @@ namespace GNU.Gettext.Xgettext
 			options.Verbose = false;
 			options.ShowUsage = false;
 			options.Recursive = false;
-			options.FileMask = "*.cs";
+            options.Overwrite = true;
 
             int option;
             while ((option = getopt.getopt()) != -1)
             {
                 switch (option)
                 {
+				case 1:
+					options.InputFiles.Add(getopt.Optarg);
+					break;
+				case 2:
+					options.Recursive = true;
+					break;
 				case ':':
 					message.AppendFormat("Option {0} requires an argument",
 					                     args[getopt.Optind - 1]);
 					return false;
 				case '?':
 					break; // getopt() already printed an error
-				case 'r':
-					options.Recursive = true;
-					break;
-				case 'i':
-                    options.InputFile = getopt.Optarg;
+				case 'j':
+                    options.Overwrite = false;
                     break;
                 case 'o':
                     options.OutFile = getopt.Optarg;
                     break;
-                case 'd':
-                    options.InputDir = getopt.Optarg;
+                case 'D':
+                    options.InputDirs.Add(getopt.Optarg);
                     break;
                 case 'v':
                     options.Verbose = true;
@@ -155,28 +157,22 @@ namespace GNU.Gettext.Xgettext
 
 		public static bool AnalyseOptions(Options options, out StringBuilder message)
 		{
-			options.InputMode = !String.IsNullOrEmpty(options.InputFile) ? InputMode.File : InputMode.Dir;
 			message = new StringBuilder();
             try
             {
-                if (String.IsNullOrEmpty(options.InputFile) && String.IsNullOrEmpty(options.InputDir))
-                {
-                    message.Append("Undefined input file name or directory");
-                    return false;
-                }
-				
+				if (options.InputFiles.Count == 0)
+					options.InputFiles.Add("*.cs");
+				if (options.InputDirs.Count == 0)
+					options.InputDirs.Add(Environment.CurrentDirectory);
 
-                if (options.InputMode == InputMode.File && !File.Exists(options.InputFile))
-                {
-                    message.AppendFormat("File '{0}' not found", options.InputFile);
-                    return false;
-                }
-				
-                if (options.InputMode == InputMode.Dir && !Directory.Exists(options.InputDir))
-                {
-                    message.AppendFormat("Source directory '{0}' not found", options.InputDir);
-                    return false;
-                }
+				foreach(string dir in options.InputDirs)
+				{
+	                if (!Directory.Exists(dir))
+	                {
+	                    message.AppendFormat("Input directory '{0}' not found", dir);
+	                    return false;
+	                }
+				}
             }
             catch(Exception e)
             {
@@ -189,17 +185,24 @@ namespace GNU.Gettext.Xgettext
 
         private static void PrintUsage()
         {
-            Console.WriteLine("Gettext .NET tools");
+            Console.WriteLine("Xgettext (Gettext.NET tools)");
             Console.WriteLine("Extract strings from C# source code files and then creates or updates PO template file");
             Console.WriteLine();
-            Console.WriteLine("Usage: {0}[.exe] [OPTIONS]",
+            Console.WriteLine("Usage:\n" +
+            	"{0}[.exe] [options] [inputfile | filemask] ...\n\n",
                 Assembly.GetExecutingAssembly().GetName().Name);
-            Console.WriteLine("   -w, --overwrite                Overwrite output file instead of updating");
-            Console.WriteLine("   -iFILE, --input-file=FILE       Input C# source code file name");
-            Console.WriteLine("   -oFILE, --output-file=FILE     Output PO template file name. Using of default '.pot' file type is recommended");
-            Console.WriteLine("   -dPATH, --input-dir=PATH       Input root directory for C# source code files");
-            Console.WriteLine("   -r, --recursive                Process all C# source code files in directory and in subdirectories");
-            Console.WriteLine("   -v, --verbose                  Verbose output");
+            Console.WriteLine(
+				"   -j, --join-existing                    Join with existing file instead of overwrite\n\n" +
+            	"   -o file, --output=file                 Output PO template file name." +
+            	"                                          Using of '*.pot' file type is recommended\n" +
+            	"                                          \"{0}\" will be used if not specified\n\n" +
+            	"   -D directory, --directory=directory    Input directory(ies) for C# source code files\n" +
+            	"                                          You can specify multiples directories\n\n" +
+            	"   --recursive                            Process all subdirectories\n\n" +
+            	"   -v, --verbose                          Verbose output\n\n" +
+            	"   -h, --help                             Display this help and exit",
+				(new Options()).OutFile
+				);
         }
 	}
 

@@ -61,21 +61,28 @@ namespace GNU.Gettext.Xgettext
 
 		public void GetMessages()
 		{
-			if (Options.InputMode == InputMode.File)
+			// Create input files list
+			Dictionary<string, string> inputFiles = new Dictionary<string, string>();
+			foreach(string dir in Options.InputDirs)
 			{
-				GetMessagesFromFile(Options.InputFile);
-			}
-			else
-			{
-				string[] files = Directory.GetFiles(
-					Options.InputDir, 
-					Options.FileMask, 
-					Options.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
-
-				foreach (string file in files)
+				foreach(string fileNameOrMask in Options.InputFiles)
 				{
-				    GetMessagesFromFile(file);
+					string[] filesInDir = Directory.GetFiles(
+						dir,
+						fileNameOrMask,
+						Options.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+					foreach (string fileName in filesInDir)
+					{
+						string fullFileName = Path.GetFullPath(fileName);
+						if (!inputFiles.ContainsKey(fullFileName))
+							inputFiles.Add(fullFileName, fullFileName);
+					}
 				}
+			}
+
+			foreach(string inputFile in inputFiles.Values)
+			{
+			    GetMessagesFromFile(inputFile);
 			}
 		}
 		

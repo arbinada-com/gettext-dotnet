@@ -25,11 +25,11 @@ namespace GNU.Gettext.Test
 			}
 			
 			Options options = new Options();
-			options.InputFile = @".\Test\File\Name.cs"; // File wont be used, feed the plain text
+			options.InputFiles.Add(@".\Test\File\Name.cs"); // File wont be used, feed the plain text
 			options.OutFile = @"./Test.pot";
 			options.Overwrite = true;
 			ExtractorCsharp extractor = new ExtractorCsharp(options);
-			extractor.GetMessages(text, options.InputFile);
+			extractor.GetMessages(text, options.InputFiles[0]);
 			extractor.Save();
 			
 			int ctx = 0;

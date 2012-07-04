@@ -530,7 +530,7 @@ namespace GNU.Gettext
 				if (myDt == null)
 				{
 					myDt = new CatalogEntry (this, dt);
-					entriesDict.Add (dt.String, myDt);
+					entriesDict.Add (dt.Key, myDt);
 					entriesList.Add (myDt);
 				} else
 				{
@@ -540,6 +540,8 @@ namespace GNU.Gettext
 						myDt.SetTranslation (dt.GetTranslation (0), 0);
 					if (dt.IsFuzzy)
 						myDt.IsFuzzy = true;
+					if (!String.IsNullOrEmpty(dt.Flags))
+						myDt.Flags = dt.Flags;
 				}
 			}
 			IsDirty = true;
