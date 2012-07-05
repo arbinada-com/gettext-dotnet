@@ -16,6 +16,8 @@ namespace GNU.Gettext.Xgettext
 		{
 			InputFiles = new List<string>();
 			InputDirs = new List<string>();
+			InputEncoding = new UTF8Encoding();
+			SearchPatterns = new List<string>();
 			this.OutFile = "messages.pot";
 		}
 
@@ -24,8 +26,15 @@ namespace GNU.Gettext.Xgettext
 		public bool Recursive { get; set; }
 		public bool Verbose { get; set; }
 		public bool ShowUsage { get; set; }
+		public Encoding InputEncoding { get; set; }
 		public List<string> InputFiles { get; private set; }
 		public List<string> InputDirs { get; private set; }
+		public List<string> SearchPatterns { get; private set; }
+		
+		public void SetEncoding(string encodingName)
+		{
+			InputEncoding = Encoding.GetEncoding(encodingName);
+		}
 	}
 	
 	class MainClass
@@ -41,7 +50,9 @@ namespace GNU.Gettext.Xgettext
 					new LongOpt("join-existing", Argument.No, null, 'j'),
 					new LongOpt("recursive", Argument.No, null, 2),
 					new LongOpt("directory", Argument.Required, null, 'D'),
+					new LongOpt("search-pattern", Argument.Required, null, 3),
 					new LongOpt("output", Argument.Required, null, 'o'),
+					new LongOpt("from-code", Argument.Required, null, 4),
 					new LongOpt("verbose", Argument.No, null, 'v')
 				};
 				return lopts;
@@ -119,12 +130,19 @@ namespace GNU.Gettext.Xgettext
 				case 2:
 					options.Recursive = true;
 					break;
+				case 3:
+					options.SearchPatterns.Add(getopt.Optarg);
+					break;
+				case 4:
+					options.SetEncoding(getopt.Optarg);
+					break;
 				case ':':
-					message.AppendFormat("Option {0} requires an argument",
-					                     args[getopt.Optind - 1]);
+					message.AppendFormat("Option '{0}' requires an argument",
+					                     (char)getopt.Optopt);
 					return false;
 				case '?':
-					break; // getopt() already printed an error
+					message.AppendFormat("Invalid option '{0}'", (char)getopt.Optopt);
+					return false;
 				case 'j':
                     options.Overwrite = false;
                     break;
@@ -193,15 +211,21 @@ namespace GNU.Gettext.Xgettext
                 Assembly.GetExecutingAssembly().GetName().Name);
             Console.WriteLine(
 				"   -j, --join-existing                    Join with existing file instead of overwrite\n\n" +
-            	"   -o file, --output=file                 Output PO template file name." +
-            	"                                          Using of '*.pot' file type is recommended\n" +
+            	"   -o file, --output=file                 Output PO template file name.\n" +
+            	"                                          Using of '*.pot' file type is strongly recommended\n" +
             	"                                          \"{0}\" will be used if not specified\n\n" +
             	"   -D directory, --directory=directory    Input directory(ies) for C# source code files\n" +
-            	"                                          You can specify multiples directories\n\n" +
+            	"                                          Use multiples options to specify more directories\n\n" +
             	"   --recursive                            Process all subdirectories\n\n" +
+				"   --search-pattern                       Custom regex pattern to find strings\n" +
+				"                                          Macro {1} can be used for C# string\n" +
+				"                                          Use multiples opions to specify more patterns\n\n" +
+            	"   --from-code=name                       Specifies the encoding of the input files\n" +
+            	"                                          Default is UTF-8\n\n" +
             	"   -v, --verbose                          Verbose output\n\n" +
             	"   -h, --help                             Display this help and exit",
-				(new Options()).OutFile
+				(new Options()).OutFile,
+				ExtractorCsharp.CsharpStringPatternMacro
 				);
         }
 	}

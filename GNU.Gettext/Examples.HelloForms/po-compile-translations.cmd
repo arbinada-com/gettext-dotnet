@@ -9,7 +9,7 @@ cd "%~dp0"
 for /F %%l in (.\po\locales.lst) do (
    if exist "%~dp0.\po\%%l.po" (
 		echo.Compiling satellite assembly. Locale "%%l"
-		"%~dp0..\..\Bin\Debug\GNU.Gettext.Msgfmt.exe" -i.\po\%%l.po -l%%l -d.\Bin\Debug -bExamples.HelloForms.Messages -ccsc -L"%~dp0..\..\Bin\Debug" -v
+		"%~dp0..\..\Bin\Debug\GNU.Gettext.Msgfmt.exe" -l %%l -d .\Bin\Debug -r Examples.HelloForms.Messages -L "%~dp0..\..\Bin\Debug" -v .\po\%%l.po
 		if errorlevel 1 exit /b 1
    )
 )

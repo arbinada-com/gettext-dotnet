@@ -1,47 +1,90 @@
 using System;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace GNU.Gettext.WinForms
 {
-	public class LocalizableObjectAdapter
+	class LocalizableObjectAdapter
 	{
 		public object Source { get; private set; }
+		public ObjectPropertiesStore Store { get; set; }
+		public ToolTipControls ToolTips { get; set; } 
 		
 		#region Constructors
-		public LocalizableObjectAdapter(object source)
+		public LocalizableObjectAdapter(object source, ObjectPropertiesStore store, ToolTipControls toolTips)
 		{
 			this.Source = source;
+			this.Store = store;
+			this.ToolTips = toolTips;
 		}
 		#endregion
-		
-		public string GetText()
+
+		#region Public interface
+		public void Localize(GettextResourceManager catalog)
 		{
-			return GetPropertyValue("Text");
-		}
-		
-		public void SetText(string text)
-		{
-			string originalText = GetOriginalText();
-			if (originalText == null)
-				SetOriginalText(GetText());
-			SetPropertyValue("Text", text);
+			LocalizeProperty(catalog, "Text");
+			LocalizeProperty(catalog, "ToolTipText");
+			
+			if (Source is Control)
+			{
+				foreach(ToolTip toolTip in ToolTips)
+				{
+					string hint = toolTip.GetToolTip(Source as Control);
+					if (hint != null)
+					{
+						StoreIfOriginal("FromToolTipText", hint);
+						string translatedHint = catalog.GetString(hint);
+						if (translatedHint != toolTip.GetToolTip(Source as Control))
+							toolTip.SetToolTip((Source as Control), translatedHint);
+					}
+				}
+			}
 		}
 		
 		public void Revert()
 		{
-			string originalText = GetOriginalText();
-			if (originalText != null)
-				SetText(originalText);
+			RevertProperty("Text");
+			RevertProperty("ToolTipText");
+			
+			if (Source is Control)
+			{
+				foreach(ToolTip toolTip in ToolTips)
+				{
+					if (Store != null)
+					{
+						string hint = Store.GetStateString(Source, "FromToolTipText");
+						if (hint != null && hint != toolTip.GetToolTip(Source as Control))
+							toolTip.SetToolTip((Source as Control), hint);
+					}
+				}
+			}
+		}
+		#endregion
+		
+		private void StoreIfOriginal(string propertyName, string value)
+		{
+			if (Store != null)
+			{
+				if (Store.GetState(Source, propertyName) == null)
+					Store.SetState(Source, propertyName, value);
+			}
 		}
 		
-		private string GetOriginalText()
+		private void LocalizeProperty(GettextResourceManager catalog, string propertyName)
 		{
-			return GetPropertyValue("Tag");
+			string text = GetPropertyValue(propertyName);
+			if (text != null)
+				SetPropertyValue(propertyName, catalog.GetString(text));
 		}
 		
-		private void SetOriginalText(string text)
+		private void RevertProperty(string propertyName)
 		{
-			SetPropertyValue("Tag", text);
+			if (Store != null)
+			{
+				string originalText = Store.GetStateString(Source, propertyName);
+				if (originalText != null)
+					SetPropertyValue(propertyName, originalText);
+			}
 		}
 		
 		private string GetPropertyValue(string name)
@@ -60,6 +103,7 @@ namespace GNU.Gettext.WinForms
 			PropertyInfo pi = Source.GetType().GetProperty(name);
 			if (pi != null && pi.CanWrite)
 			{
+				StoreIfOriginal(name, value);
 				pi.SetValue(Source, value, null);
 			}
 		}

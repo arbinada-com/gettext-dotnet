@@ -34,6 +34,7 @@ namespace GNU.Gettext.Xgettext
 			)";
 	
 		const string CsharpStringPattern = @"(@""(?:[^""]|"""")*""|""(?:\\.|[^\\""])*"")";
+		public const string CsharpStringPatternMacro = "%CsharpString%";
 		const string TwoStringsArgumentsPattern = CsharpStringPattern + @"\s*,\s*" + CsharpStringPattern;
 		
 		public Catalog Catalog { get; private set; }
@@ -89,7 +90,7 @@ namespace GNU.Gettext.Xgettext
 		private void GetMessagesFromFile(string fileName)
 		{
 			fileName = Path.GetFullPath(fileName);
-			StreamReader inputFile = new StreamReader(fileName);
+			StreamReader inputFile = new StreamReader(fileName, Options.InputEncoding);
 			string text = inputFile.ReadToEnd();
 			inputFile.Close();
 			GetMessages(text, fileName);
@@ -98,11 +99,20 @@ namespace GNU.Gettext.Xgettext
 			
 		public void GetMessages(string text, string sourceFile) 
 		{
+			ProcessPattern(ExtractMode.Msgid, @"GetString\s*\(\s*" + CsharpStringPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, @"GetStringFmt\s*\(\s*" + CsharpStringPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralString\s*\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.ContextMsgid, @"GetParticularString\s*\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
+			
+			// Winforms patterns
 			ProcessPattern(ExtractMode.Msgid, @"\.\s*Text\s*=\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.Msgid, @"GetString\(\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.Msgid, @"GetStringFmt\(\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralString\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.ContextMsgid, @"GetParticularString\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, @"\.\s*SetToolTip\s*\([^\\""]*\s*,\s*" + CsharpStringPattern, text, sourceFile);
+			
+			// Custom patterns
+			foreach(string pattern in Options.SearchPatterns)
+			{
+				ProcessPattern(ExtractMode.Msgid, pattern.Replace(CsharpStringPatternMacro, CsharpStringPattern), text, sourceFile);
+			}
 		}
 		
 		public void Save()

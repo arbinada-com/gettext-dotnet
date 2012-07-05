@@ -19,7 +19,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <Commandlineparameters>-d"../../GNU.Gettext/Examples.Hello" -o"../../GNU.Gettext/Examples.Hello/po/Messages.pot"</Commandlineparameters>
+    <Commandlineparameters>-j -D "../../GNU.Gettext/Examples.Hello" --recursive -o "../../GNU.Gettext/Examples.Hello/po/Messages.pot"</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>

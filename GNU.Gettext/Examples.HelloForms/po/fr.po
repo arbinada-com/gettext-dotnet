@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: GNU gettext .NET\n"
 "Report-Msgid-Bugs-To: bug-gnu-gettext@gnu.org\n"
 "POT-Creation-Date: 2012-06-28 14:56:59+0200\n"
-"PO-Revision-Date: 2012-06-28 14:58+0100\n"
+"PO-Revision-Date: 2012-07-05 10:15+0100\n"
 "Last-Translator: Serguei TARASSOV <st@arbinada.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -18,24 +18,24 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: Form1.cs:79
-#: Form1.cs:107
+#: ../Form1.cs:87
+#: ../Form1.cs:120
 msgid "Hello, world!"
 msgstr "Bonjour, le monde !"
 
-#: Form1.cs:84
+#: ../Form1.cs:92
 msgid "en-US"
 msgstr ""
 
-#: Form1.cs:91
+#: ../Form1.cs:99
 msgid "fr-FR"
 msgstr ""
 
-#: Form1.cs:98
+#: ../Form1.cs:106
 msgid "ru-RU"
 msgstr ""
 
-#: Form1.cs:161
+#: ../Form1.cs:174
 msgid ""
 "Here is an example of how one might continue a very long string\n"
 "for the common case the string represents multi-line output.\n"
@@ -43,31 +43,45 @@ msgstr ""
 "Voici une exemple d'une chaîne longue\n"
 "en cas commun elle est représentée par plusieurs lignes.\n"
 
-#: Form1.cs:40
+#: ../Form1.cs:42
 msgid "Text encoding"
 msgstr "Codification du texte"
 
-#: Form1.cs:27
+#: ../Form1.cs:29
+#, csharp-format
 msgid "This program is running as process number \"{0}\"."
 msgstr "Ce programme est exécuté en tant que processus numéro \"{0}\"."
 
-#: Form1.cs:30
-#: Form1.cs:33
-#: Form1.cs:36
+#: ../Form1.cs:32
+#: ../Form1.cs:35
+#: ../Form1.cs:38
+#, csharp-format
 msgid "found {0} similar word"
 msgid_plural "found {0} similar words"
 msgstr[0] "{0} mot similaire trouvé"
 msgstr[1] "{0} mots similaires trouvés"
 
 #. Context: Computers
-#: Form1.cs:38
+#: ../Form1.cs:40
 msgctxt "Computers"
 msgid "Text encoding"
 msgstr "Encodage du texte"
 
 #. Context: Military
-#: Form1.cs:39
+#: ../Form1.cs:41
 msgctxt "Military"
 msgid "Text encoding"
 msgstr "Chiffrement du texte"
+
+#: ../Form1.cs:113
+msgid "Switch to English"
+msgstr "Basculer en Anglais"
+
+#: ../Form1.cs:114
+msgid "Switch to French"
+msgstr "Basculer en Français"
+
+#: ../Form1.cs:115
+msgid "Switch to Russian"
+msgstr "Basculer en Russe"
 

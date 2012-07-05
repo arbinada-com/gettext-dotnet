@@ -43,6 +43,7 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GettextResourceManagerTest.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="PluralFormsTest.cs" />
     <Compile Include="UtilsTest.cs" />
     <Compile Include="FormatValidatorTest.cs" />
+    <Compile Include="ObjectPropertiesStoreTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -72,6 +74,10 @@
     <ProjectReference Include="..\GNU.Gettext.Xgettext\GNU.Gettext.Xgettext.csproj">
       <Project>{69B39E65-093E-417A-BFC9-B1CF7B981680}</Project>
       <Name>GNU.Gettext.Xgettext</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GNU.Gettext.WinForms\GNU.Gettext.WinForms.csproj">
+      <Project>{A458C869-B3C4-4130-8D3F-00F44548DD5C}</Project>
+      <Name>GNU.Gettext.WinForms</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

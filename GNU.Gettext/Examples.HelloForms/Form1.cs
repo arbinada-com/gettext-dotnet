@@ -8,10 +8,13 @@ using System.Text;
 using System.Windows.Forms;
 using System.Globalization;
 
+using GNU.Gettext.WinForms;
+
 namespace GNU.Gettext.Examples
 {
     public partial class Form1 : Form
     {
+		private ObjectPropertiesStore store = new ObjectPropertiesStore();
         public Form1()
         {
             InitializeComponent();
@@ -21,9 +24,11 @@ namespace GNU.Gettext.Examples
 		private void SetTexts()
 		{
             GettextResourceManager catalog = new GettextResourceManager();
-            // if satellite assemblies have another base name use GettextResourceManager("Examples.HelloForms.Messages") constructor
+            // If satellite assemblies have another base name use GettextResourceManager("Examples.HelloForms.Messages") constructor
 			// If you call from another assembly, use GettextResourceManager(anotherAssembly) constructor
-			GNU.Gettext.WinForms.Localizer.Localize(this, catalog);
+			Localizer.Localize(this, catalog, store);
+			// We need pass 'store' argument only to be able revert original text and switch languages on fly
+			// Common use case doesn't required it: Localizer.Localize(this, catalog);
 
 			// Manually formatted strings
 			label2.Text = catalog.GetStringFmt("This program is running as process number \"{0}\".",
@@ -46,17 +51,22 @@ namespace GNU.Gettext.Examples
 		{
 			string locale = "en-US";
 			if (sender == rbFrFr)
+			{
 				locale = "fr-FR";
+			}
 			else if (sender == rbRuRu)
+			{
 				locale = "ru-RU";
+			}
             System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo(locale);
-			GNU.Gettext.WinForms.Localizer.Revert(this);
+			GNU.Gettext.WinForms.Localizer.Revert(this, store);
 			SetTexts();
 		}
 
         #region Windows Form Designer code
         private System.ComponentModel.IContainer components = null;
-
+		
+		private ToolTip toolTip1;
 		private RadioButton rbEnUs;
 		private RadioButton rbFrFr;
 		private RadioButton rbRuRu;
@@ -82,6 +92,7 @@ namespace GNU.Gettext.Examples
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Text = "Hello, world!";
 			this.Width = 440;
@@ -107,6 +118,11 @@ namespace GNU.Gettext.Examples
 			rbRuRu.AutoSize = true;
 			rbRuRu.Click += OnLocaleChanged;
 			Controls.Add(rbRuRu);
+			
+			toolTip1 = new ToolTip(this.components);
+			toolTip1.SetToolTip(rbEnUs, "Switch to English");
+			toolTip1.SetToolTip(rbFrFr, "Switch to French");
+			toolTip1.SetToolTip(rbRuRu, "Switch to Russian");
 
 			label1 = new Label();
 			label1.Name = "label1";

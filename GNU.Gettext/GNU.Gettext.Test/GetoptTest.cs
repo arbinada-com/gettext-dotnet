@@ -22,11 +22,10 @@ namespace GNU.Gettext.Test
 
 			string[] args = new string[]
 			{
-				"-l fr-FR",
-				"-d ./bin/Debug",
-				"-r Examples.Hello.Messages",
-				"-c gmcs",
-				"-L ./../../Bin",
+				"-l", "fr-FR",
+				"-d", "./bin/Debug",
+				"-r", "Examples.Hello.Messages",
+				"-L", "./../../Bin",
 				"-v",
 				"./po/fr.po",
 				"./po/ru.po"
@@ -58,6 +57,7 @@ namespace GNU.Gettext.Test
 			Assert.IsTrue(Msgfmt.Program.GetOptions(args, Program.SOpts, Program.LOpts, options, out message), message.ToString());
 			Assert.AreEqual(0, message.Length, message.ToString());
 			CheckOptions(options);
+			Assert.AreEqual("gmcs", options.CompilerName);
 			Assert.AreEqual(Mode.SateliteAssembly, options.Mode);
 		}
 
@@ -68,7 +68,6 @@ namespace GNU.Gettext.Test
 			Assert.AreEqual("fr-FR", options.LocaleStr);
 			Assert.AreEqual("./bin/Debug", options.OutDir);
 			Assert.AreEqual("Examples.Hello.Messages", options.BaseName);
-			Assert.AreEqual("gmcs", options.CompilerName);
 			Assert.AreEqual("./../../Bin", options.LibDir);
 			Assert.IsTrue(options.Verbose);
 		}
@@ -80,11 +79,11 @@ namespace GNU.Gettext.Test
 			string[] args = new string[]
 			{
 				"--csharp-resources",
-				"-l fr-FR",
-				"-d ./bin/Debug",
-				"-r Examples.Hello.Messages",
-				"-c gmcs",
-				"-L ./../../Bin",
+				"-l", "fr-FR",
+				"-d", "./bin/Debug",
+				"-r", "Examples.Hello.Messages",
+				"--compiler-name=gmcs",
+				"-L", "./../../Bin",
 				"-v",
 				"./po/fr.po",
 				"./po/ru.po"

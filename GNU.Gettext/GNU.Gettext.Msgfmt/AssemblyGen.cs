@@ -19,7 +19,7 @@ namespace GNU.Gettext.Msgfmt
 		private Catalog catalog;
 
         public Dictionary<string, string> Entries { get; private set; }
-		public string FileName { get; private set; }
+		public string CsharpSourceFileName { get; private set; }
 		public string AssemblyOutDir  { get; private set; }
 		public Options Options { get; private set; }
 		public string ClassName { get; private set; }
@@ -31,13 +31,10 @@ namespace GNU.Gettext.Msgfmt
             cw = new IndentedTextWriter(sw);
 			this.Options = options;
 			ClassName = GettextResourceManager.MakeResourceSetClassName(Options.BaseName, Options.Locale);
-#if DEBUG			
-            FileName = Path.Combine(
-				Options.OutDir,
-                String.Format("{0}.{1}.resources.cs", Options.BaseName, Options.Locale.Name));
-#else
-            FileName = Path.GetTempFileName();
-#endif
+//            CsharpSourceFileName = Path.Combine(
+//				Options.OutDir,
+//                String.Format("{0}.{1}.resources.cs", Options.BaseName, Options.Locale.Name));
+            CsharpSourceFileName = Path.GetTempFileName();
         }
 		#endregion
 
@@ -55,7 +52,7 @@ namespace GNU.Gettext.Msgfmt
 			SaveToFile();
 			Compile();
 			if (!Options.DebugMode)
-				File.Delete(FileName);
+				File.Delete(CsharpSourceFileName);
         }
 		
 		private void Check()
@@ -181,7 +178,7 @@ namespace GNU.Gettext.Msgfmt
 
 		private void SaveToFile()
 		{
-            using (StreamWriter writer = new StreamWriter(FileName, false, Encoding.UTF8))
+            using (StreamWriter writer = new StreamWriter(CsharpSourceFileName, false, Encoding.UTF8))
             {
                 writer.WriteLine(sw.ToString());
             }
@@ -207,7 +204,7 @@ namespace GNU.Gettext.Msgfmt
 				AssemblyOutDir,
 				Options.BaseName,
 				Path.GetFullPath(Options.LibDir),
-				FileName
+				CsharpSourceFileName
 				);
 			if (Options.Verbose)
 				Console.WriteLine("Compiler: {0} {1}", p.StartInfo.FileName, p.StartInfo.Arguments);
@@ -220,7 +217,7 @@ namespace GNU.Gettext.Msgfmt
 					throw new Exception(String.Format(
 						"Assembly compilation failed. ExitCode: {0}\nSee source file: {1}\n{2}\n{3}",
 						p.ExitCode,
-						FileName,
+						CsharpSourceFileName,
 						p.StandardOutput.ReadToEnd(),
 						p.StandardError.ReadToEnd()));
 				}

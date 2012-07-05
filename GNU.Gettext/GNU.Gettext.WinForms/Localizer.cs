@@ -1,30 +1,114 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace GNU.Gettext.WinForms
 {
+	public class ToolTipControls : List<ToolTip>
+	{
+	}
+	
 	public class Localizer
 	{
-		
 		public delegate void OnIterateControl(Control control);
 		
-		#region Constructors
-		public Localizer(Control control, string resourceBaseName)
+		public GettextResourceManager Catalog { get; set; }
+		public ObjectPropertiesStore OriginalTextStore { get; set; }
+		
+		private ToolTipControls toolTips = new ToolTipControls();
+		public ToolTipControls ToolTips
 		{
-            GettextResourceManager catalog = new GettextResourceManager(resourceBaseName);
-			Localize(control, catalog);
+			get { return toolTips; }
+		}
+		private Control root;
+		
+		#region Constructors
+		public Localizer(Control rootControl, string resourceBaseName)
+			: this(rootControl, new GettextResourceManager(resourceBaseName), null)
+		{
+		}
+		
+		public Localizer(Control rootControl, string resourceBaseName, ObjectPropertiesStore originalTextStore)
+			: this(rootControl, new GettextResourceManager(resourceBaseName), originalTextStore)
+		{
+		}
+		
+		public Localizer(Control rootControl, GettextResourceManager catalog)
+			: this(rootControl, catalog, null)
+		{
+		}
+		
+		public Localizer(Control rootControl, GettextResourceManager catalog, ObjectPropertiesStore originalTextStore)
+		{
+            this.Catalog = catalog;
+			this.OriginalTextStore = originalTextStore;
+			this.root = rootControl;
+
+			// Access to form components
+			IterateControls(root, 
+			               delegate(Control control) {
+				InitFromContainer(control.Container);
+			});
+			for (Control c = root; c != null; c = c.Parent)
+			{
+				if (c is Form || c is UserControl)
+				{
+					FieldInfo fi = c.GetType().GetField("components", BindingFlags.NonPublic | BindingFlags.Instance);
+					if (fi != null)
+					{
+						InitFromContainer((IContainer)fi.GetValue(c));
+					}
+				}
+			}
+			
+			Localize();
+		}
+		
+		private void InitFromContainer(IContainer container)
+		{
+			if (container == null || container.Components == null)
+				return;
+			foreach(Component component in container.Components)
+			{
+				if (component is ToolTip)
+				{
+					if (!toolTips.Contains(component as ToolTip))
+						toolTips.Add(component as ToolTip);
+				}
+			}
 		}
 		#endregion
 		
 		#region Public interface
 		public static void Localize(Control control, GettextResourceManager catalog)
 		{
-			IterateControls(control, catalog, IterateMode.Localize);
+			Localizer.Localize(control, catalog, null);
+		}
+		
+		public static void Localize(Control control, GettextResourceManager catalog, ObjectPropertiesStore originalTextStore)
+		{
+			if (catalog == null)
+				return;
+			Localizer loc = new Localizer(control, catalog, originalTextStore);
+			loc.Localize();
 		}
 
-		public static void Revert(Control control)
+		public static void Revert(Control control, ObjectPropertiesStore originalTextStore)
 		{
-			IterateControls(control, null, IterateMode.Revert);
+			Localizer loc = new Localizer(control, new GettextResourceManager(), originalTextStore);
+			loc.Revert();
+		}
+		
+		public void Localize()
+		{
+			IterateControls(root, IterateMode.Localize);
+		}
+		
+		public void Revert()
+		{
+			IterateControls(root, IterateMode.Revert);
 		}
 		#endregion
 		
@@ -35,14 +119,12 @@ namespace GNU.Gettext.WinForms
 			Revert
 		}
 		
-		private static void IterateControlHandler(LocalizableObjectAdapter adapter, GettextResourceManager catalog, IterateMode mode)
+		private void IterateControlHandler(LocalizableObjectAdapter adapter, IterateMode mode)
 		{
 			switch (mode)
 			{
 			case IterateMode.Localize:
-				string text = adapter.GetText();
-				if (text != null)
-					adapter.SetText(catalog.GetString(text));
+				adapter.Localize(Catalog);
 				break;
 			case IterateMode.Revert:
 				adapter.Revert();
@@ -51,14 +133,39 @@ namespace GNU.Gettext.WinForms
 		}
 		
 		#endregion
+			
+		private IContainer FindContainer()
+		{
+			for (Control c = root; c != null; c = c.Parent)
+			{
+				if (c.Container != null)
+					return c.Container;
+			}
+			return null;
+		}
 		
-		private static void IterateControls(Control control, GettextResourceManager catalog, IterateMode mode)
+		private void IterateControls(Control control, OnIterateControl onIterateControl)
 		{
 			if (control is ContainerControl)
 			{
 				foreach(Control child in (control as ContainerControl).Controls)
 				{
-					IterateControls(child, catalog, mode);
+					IterateControls(child, onIterateControl);
+				}
+			}
+			
+			if (onIterateControl != null)
+				onIterateControl(control);
+		}
+		
+		
+		private void IterateControls(Control control, IterateMode mode)
+		{
+			if (control is ContainerControl)
+			{
+				foreach(Control child in (control as ContainerControl).Controls)
+				{
+					IterateControls(child, mode);
 				}
 			}
 			
@@ -66,23 +173,23 @@ namespace GNU.Gettext.WinForms
 			{
 				foreach(ToolStripItem item in (control as ToolStrip).Items)
 				{
-					IterateToolStripItems(item, catalog, mode);
+					IterateToolStripItems(item, mode);
 				}
 			}
 			
-			IterateControlHandler(new LocalizableObjectAdapter(control), catalog, mode);
+			IterateControlHandler(new LocalizableObjectAdapter(control, OriginalTextStore, toolTips), mode);
 		}
 		
-		private static void IterateToolStripItems(ToolStripItem item, GettextResourceManager catalog, IterateMode mode)
+		private void IterateToolStripItems(ToolStripItem item, IterateMode mode)
 		{
 			if (item is ToolStripDropDownItem)
 			{
 				foreach(ToolStripItem subitem in (item as ToolStripDropDownItem).DropDownItems)
 				{
-					IterateToolStripItems(subitem, catalog, mode);
+					IterateToolStripItems(subitem, mode);
 				}
 			}
-			IterateControlHandler(new LocalizableObjectAdapter(item), catalog, mode);
+			IterateControlHandler(new LocalizableObjectAdapter(item, OriginalTextStore, toolTips), mode);
 		}
 	}
 }
