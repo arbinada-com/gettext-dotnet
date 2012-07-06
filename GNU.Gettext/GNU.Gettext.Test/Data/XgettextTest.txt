@@ -26,6 +26,12 @@
 
 /* 14 */ someCatalog.GetParticularString("Sport", @"Score");
 /* 15 */ someCatalog.GetParticularString("Math", @"Score");
+/* 16 */ this.Text = "multiline" +
+		"-string-1" +
+		"-string-2";
+/* 17 */ toolTip1.SetToolTip(label1, "Hint for label1" ) ;
+/* 18 */ toolTip1.SetToolTip(label1, "Multiline" +
+        " Hint" +
+        " for label1" ) ;
 
-
-// 15 matches with 1 duplicates
+// 18 matches with 1 duplicates

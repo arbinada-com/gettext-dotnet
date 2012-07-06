@@ -10,6 +10,7 @@ namespace GNU.Gettext.Xgettext
 	public enum ExtractMode
 	{
 		Msgid,
+		MsgidConcat, // Like "Str 1 " + "Str 2" + "Str 3"
 		MsgidPlural,
 		ContextMsgid,
 	}
@@ -34,9 +35,12 @@ namespace GNU.Gettext.Xgettext
 			)";
 	
 		const string CsharpStringPattern = @"(@""(?:[^""]|"""")*""|""(?:\\.|[^\\""])*"")";
-		public const string CsharpStringPatternMacro = "%CsharpString%";
+		const string ConcatenatedStringsPattern = @"((@""(?:[^""]|"""")*""|""(?:\\.|[^\\""])*"")\s*(?:\+|;|,|\))\s*){2,}";
 		const string TwoStringsArgumentsPattern = CsharpStringPattern + @"\s*,\s*" + CsharpStringPattern;
-		
+		const string ThreeStringsArgumentsPattern = TwoStringsArgumentsPattern + @"\s*,\s*" + CsharpStringPattern;
+
+		public const string CsharpStringPatternMacro = "%CsharpString%";
+
 		public Catalog Catalog { get; private set; }
 		public Options Options { get; private set; }
 		
@@ -87,36 +91,57 @@ namespace GNU.Gettext.Xgettext
 			}
 		}
 		
-		private void GetMessagesFromFile(string fileName)
+		private void GetMessagesFromFile(string inputFile)
 		{
-			fileName = Path.GetFullPath(fileName);
-			StreamReader inputFile = new StreamReader(fileName, Options.InputEncoding, Options.DetectEncoding);
-			string text = inputFile.ReadToEnd();
-			inputFile.Close();
-			GetMessages(text, fileName);
+			inputFile = Path.GetFullPath(inputFile);
+			StreamReader input = new StreamReader(inputFile, Options.InputEncoding, Options.DetectEncoding);
+			string text = input.ReadToEnd();
+			input.Close();
+			GetMessages(text, inputFile);
 		}
 		
 			
-		public void GetMessages(string text, string sourceFile) 
+		public void GetMessages(string text, string inputFile)
 		{
 			text = RemoveComments(text);
 			
-			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"GetString\s*\(\s*" + CsharpStringPattern, text), text, sourceFile);
-			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"GetStringFmt\s*\(\s*" + CsharpStringPattern, text), text, sourceFile);
-			ProcessPattern(ExtractMode.MsgidPlural, ApplyPattern(@"GetPluralString\s*\(\s*" + TwoStringsArgumentsPattern, text), text, sourceFile);
-			ProcessPattern(ExtractMode.MsgidPlural, ApplyPattern(@"GetPluralStringFmt\s*\(\s*" + TwoStringsArgumentsPattern, text), text, sourceFile);
-			ProcessPattern(ExtractMode.ContextMsgid, ApplyPattern(@"GetParticularString\s*\(\s*" + TwoStringsArgumentsPattern, text), text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, @"GetString\s*\(\s*" + CsharpStringPattern, text, inputFile);
+			ProcessPattern(ExtractMode.Msgid, @"GetStringFmt\s*\(\s*" + CsharpStringPattern, text, inputFile);
+			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralString\s*\(\s*" + TwoStringsArgumentsPattern, text, inputFile);
+			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralStringFmt\s*\(\s*" + TwoStringsArgumentsPattern, text, inputFile);
+			ProcessPattern(ExtractMode.ContextMsgid, @"GetParticularString\s*\(\s*" + TwoStringsArgumentsPattern, text, inputFile);
+			ProcessPattern(ExtractMode.ContextMsgid, @"GetParticularPluralString\s*\(\s*" + ThreeStringsArgumentsPattern, text, inputFile);
+
 			
 			// Winforms patterns
-			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"\.\s*Text\s*=\s*" + CsharpStringPattern, text), text, sourceFile);
-			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"\.\s*ToolTipText\s*=\s*" + CsharpStringPattern, text), text, sourceFile);
-			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"\.\s*SetToolTip\s*\([^\\""]*\s*,\s*" + CsharpStringPattern, text), text, sourceFile);
-			
+			ProcessPattern(ExtractMode.Msgid, @"\.\s*Text\s*=\s*" + CsharpStringPattern + @"\s*;", text, inputFile);
+			ProcessPattern(ExtractMode.MsgidConcat, @"\.\s*Text\s*=\s*" + ConcatenatedStringsPattern, text, inputFile);
+
+			ProcessPattern(ExtractMode.Msgid, @"\.\s*ToolTipText\s*=\s*" + CsharpStringPattern + @"\s*;", text, inputFile);
+			ProcessPattern(ExtractMode.MsgidConcat, @"\.\s*ToolTipText\s*=\s*" + ConcatenatedStringsPattern, text, inputFile);
+
+			ProcessPattern(ExtractMode.Msgid, @"\.\s*SetToolTip\s*\([^\\""]*\s*,\s*" + CsharpStringPattern + @"\s*\)\s*;", text, inputFile);
+			ProcessPattern(ExtractMode.MsgidConcat, @"\.\s*SetToolTip\s*\([^\\""]*\s*,\s*" + ConcatenatedStringsPattern, text, inputFile);
+
 			// Custom patterns
 			foreach(string pattern in Options.SearchPatterns)
 			{
-				ProcessPattern(ExtractMode.Msgid, ApplyPattern(pattern.Replace(CsharpStringPatternMacro, CsharpStringPattern), text), text, sourceFile);
+				ProcessPattern(ExtractMode.Msgid, pattern.Replace(CsharpStringPatternMacro, CsharpStringPattern), text, inputFile);
 			}
+		}
+
+	
+		public void Save()
+		{
+			if (File.Exists(Options.OutFile))
+			{
+				string bakFileName = Options.OutFile + ".bak";
+				if (File.Exists(bakFileName))
+					File.Delete(bakFileName);
+				File.Copy(Options.OutFile, bakFileName);
+				File.Delete(Options.OutFile);
+			}
+			Catalog.Save(Options.OutFile);
 		}
 
 		public static string RemoveComments(string input)
@@ -127,51 +152,47 @@ namespace GNU.Gettext.Xgettext
 			return Regex.Replace(
 				input,
 				blockComments + "|" + lineComments + "|" + CsharpStringPattern,
-				me => {
-				if (me.Value.StartsWith("/*") || me.Value.StartsWith("//"))
+				m => {
+				if (m.Value.StartsWith("/*") || m.Value.StartsWith("//"))
 				{
 					// Replace the comments with empty, i.e. remove them
-					return me.Value.StartsWith("//") ? me.Groups[3].Value : "";
+					return m.Value.StartsWith("//") ? m.Groups[3].Value : "";
 				}
 				// Keep the literal strings
-				return me.Value;
+				return m.Value;
 			},
 			RegexOptions.Singleline);
 		}
-		
-	
-		public void Save()
-		{
-			if (File.Exists(Options.OutFile))
-			{
-				string bakFileName = Options.OutFile + ".bak";
-				File.Delete(bakFileName);
-				File.Copy(Options.OutFile, bakFileName);
-				File.Delete(Options.OutFile);
-			}
-			Catalog.Save(Options.OutFile);
-		}
-		
-		private MatchCollection ApplyPattern(string pattern, string text)
+
+		private void ProcessPattern(ExtractMode mode, string pattern, string text, string inputFile)
 		{
 			Regex r = new Regex(pattern, RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline);
-			return r.Matches(text);
-		}
-		
-		private void ProcessPattern(ExtractMode mode, MatchCollection matches, string text, string sourceFile)
-		{
+			MatchCollection matches = r.Matches(text);
 			foreach (Match match in matches)
 			{
 				GroupCollection groups = match.Groups;
-				
+				if (groups.Count < 2)
+					throw new Exception(String.Format(
+						"Invalid pattern '{0}'.\nTwo groups are required at least.\nSource: {1}",
+						pattern, match.Value));
+
 				// Initialisation
+				string context = String.Empty;
 				string msgid = String.Empty;
 				string msgidPlural = String.Empty;
-				string context = String.Empty;
 				switch(mode)
 				{
 				case ExtractMode.Msgid:
 					msgid = Unescape(groups[1].Value);
+					break;
+				case ExtractMode.MsgidConcat:
+					MatchCollection matches2 = Regex.Matches(groups[0].Value, CsharpStringPattern);
+					StringBuilder sb = new StringBuilder();
+					foreach(Match match2 in matches2)
+					{
+						sb.Append(Unescape(match2.Value));
+					}
+					msgid = sb.ToString();
 					break;
 				case ExtractMode.MsgidPlural:
 					if (groups.Count < 3)
@@ -184,55 +205,63 @@ namespace GNU.Gettext.Xgettext
 						throw new Exception(String.Format("Invalid get context message call.\nSource: {0}", match.Value));
 					context = Unescape(groups[1].Value);
 					msgid = Unescape(groups[2].Value);
+					if (groups.Count == 4)
+					msgidPlural = Unescape(groups[3].Value);
 					break;
 				}
-				
-				// Processing
-				CatalogEntry entry = Catalog.FindItem(msgid, context);
-				bool entryFound = entry != null;
-				if (!entryFound)
-					entry = new CatalogEntry(Catalog, msgid, msgidPlural);
-				
-				// Add source reference if it not exists yet
-				// Each reference is in the form "path_name:line_number"
-				string sourceRef = String.Format("{0}:{1}", 
-				                                 Utils.FileUtils.GetRelativeUri(Path.GetFullPath(sourceFile), Path.GetFullPath(Options.OutFile)), 
-				                                 CalcLineNumber(text, match.Index));
-				entry.AddReference(sourceRef); // Wont be added if exists
-				
-				if (FormatValidator.IsFormatString(msgid) || FormatValidator.IsFormatString(msgidPlural))
-				{
-					if (!entry.IsInFormat("csharp"))
-						entry.Flags += ", csharp-format";
-					Trace.WriteLineIf(
-						!FormatValidator.IsValidFormatString(msgid),
-						String.Format("Warning: string format may be invalid: '{0}'\nSource: {1}", msgid, sourceRef));
-					Trace.WriteLineIf(
-						!FormatValidator.IsValidFormatString(msgidPlural),
-						String.Format("Warning: plural string format may be invalid: '{0}'\nSource: {1}", msgidPlural, sourceRef));
-				}
-				
-				switch(mode)
-				{
-				case ExtractMode.Msgid:
-					break;
-				case ExtractMode.MsgidPlural:
-					if (!entryFound)
-					{
-						AddPluralsTranslations(entry);
-					}
-					else
-						UpdatePluralEntry(entry, msgidPlural);
-					break;
-				case ExtractMode.ContextMsgid:
-					entry.Context = context;
-					entry.AddAutoComment(String.Format("Context: {0}", context), true);
-					break;
-				}
-				
-				if (!entryFound)
-					Catalog.AddItem(entry);
+				MergeWithEntry(context, msgid, msgidPlural, inputFile, CalcLineNumber(text, match.Index));
 			}
+		}
+
+		private void MergeWithEntry(
+			string context,
+			string msgid,
+			string msgidPlural,
+			string inputFile,
+			int line)
+		{
+			// Processing
+			CatalogEntry entry = Catalog.FindItem(msgid, context);
+			bool entryFound = entry != null;
+			if (!entryFound)
+				entry = new CatalogEntry(Catalog, msgid, msgidPlural);
+
+			// Add source reference if it not exists yet
+			// Each reference is in the form "path_name:line_number"
+			string sourceRef = String.Format("{0}:{1}",
+			                                 Utils.FileUtils.GetRelativeUri(Path.GetFullPath(inputFile), Path.GetFullPath(Options.OutFile)),
+			                                 line);
+			entry.AddReference(sourceRef); // Wont be added if exists
+			
+			if (FormatValidator.IsFormatString(msgid) || FormatValidator.IsFormatString(msgidPlural))
+			{
+				if (!entry.IsInFormat("csharp"))
+					entry.Flags += ", csharp-format";
+				Trace.WriteLineIf(
+					!FormatValidator.IsValidFormatString(msgid),
+					String.Format("Warning: string format may be invalid: '{0}'\nSource: {1}", msgid, sourceRef));
+				Trace.WriteLineIf(
+					!FormatValidator.IsValidFormatString(msgidPlural),
+					String.Format("Warning: plural string format may be invalid: '{0}'\nSource: {1}", msgidPlural, sourceRef));
+			}
+			
+			if (!String.IsNullOrEmpty(msgidPlural))
+			{
+				if (!entryFound)
+				{
+					AddPluralsTranslations(entry);
+				}
+				else
+					UpdatePluralEntry(entry, msgidPlural);
+			}
+			if (!String.IsNullOrEmpty(context))
+			{
+				entry.Context = context;
+				entry.AddAutoComment(String.Format("Context: {0}", context), true);
+			}
+
+			if (!entryFound)
+				Catalog.AddItem(entry);
 		}
 		
 		private int CalcLineNumber(string text, int pos)

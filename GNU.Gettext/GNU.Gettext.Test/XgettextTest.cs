@@ -12,7 +12,7 @@ namespace GNU.Gettext.Test
 	public class XgettextTest
 	{
 		[Test()]
-		public void ParsingTest()
+		public void ExtractorCSharpTest()
 		{
 			string ressourceId = String.Format("{0}.{1}", this.GetType().Assembly.GetName().Name, "Data.XgettextTest.txt");
 			string text = "";
@@ -25,7 +25,7 @@ namespace GNU.Gettext.Test
 			}
 			
 			Options options = new Options();
-			options.InputFiles.Add(@".\Test\File\Name.cs"); // File wont be used, feed the plain text
+			options.InputFiles.Add(@"./Test/File/Name.cs"); // File wont be used, feed the plain text
 			options.OutFile = @"./Test.pot";
 			options.Overwrite = true;
 			ExtractorCsharp extractor = new ExtractorCsharp(options);
@@ -33,16 +33,21 @@ namespace GNU.Gettext.Test
 			extractor.Save();
 			
 			int ctx = 0;
+			int multiline = 0;
 			foreach(CatalogEntry entry in extractor.Catalog)
 			{
 				if (entry.HasContext)
 					ctx++;
+				if (entry.String == "multiline-string-1-string-2" ||
+				    entry.String == "Multiline Hint for label1")
+					multiline++;
 			}
 			
 			Assert.AreEqual(2, ctx, "Context count");
 			
 			Assert.AreEqual(2, extractor.Catalog.PluralFormsCount, "PluralFormsCount");
-			Assert.AreEqual(14, extractor.Catalog.Count, "Duplicates may not detected");
+			Assert.AreEqual(17, extractor.Catalog.Count, "Duplicates may not detected");
+			Assert.AreEqual(2, multiline, "Multiline string");
 		}
 		
 		[Test()]
