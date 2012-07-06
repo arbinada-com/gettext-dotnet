@@ -14,11 +14,12 @@ namespace GNU.Gettext.Xgettext
 	{
 		public Options()
 		{
-			InputFiles = new List<string>();
-			InputDirs = new List<string>();
-			InputEncoding = new UTF8Encoding();
-			SearchPatterns = new List<string>();
+			this.InputFiles = new List<string>();
+			this.InputDirs = new List<string>();
+			this.InputEncoding = new UTF8Encoding();
+			this.SearchPatterns = new List<string>();
 			this.OutFile = "messages.pot";
+			this.DetectEncoding = false;
 		}
 
         public string OutFile { get; set; }
@@ -27,6 +28,7 @@ namespace GNU.Gettext.Xgettext
 		public bool Verbose { get; set; }
 		public bool ShowUsage { get; set; }
 		public Encoding InputEncoding { get; set; }
+		public bool DetectEncoding { get; set; }
 		public List<string> InputFiles { get; private set; }
 		public List<string> InputDirs { get; private set; }
 		public List<string> SearchPatterns { get; private set; }
@@ -53,6 +55,7 @@ namespace GNU.Gettext.Xgettext
 					new LongOpt("search-pattern", Argument.Required, null, 3),
 					new LongOpt("output", Argument.Required, null, 'o'),
 					new LongOpt("from-code", Argument.Required, null, 4),
+					new LongOpt("detect-code", Argument.No, null, 5),
 					new LongOpt("verbose", Argument.No, null, 'v')
 				};
 				return lopts;
@@ -136,12 +139,14 @@ namespace GNU.Gettext.Xgettext
 				case 4:
 					options.SetEncoding(getopt.Optarg);
 					break;
+				case 5:
+					options.DetectEncoding = true;
+					break;
 				case ':':
-					message.AppendFormat("Option '{0}' requires an argument",
-					                     (char)getopt.Optopt);
+					message.AppendFormat("Option '{0}' requires an argument", getopt.OptoptStr);
 					return false;
 				case '?':
-					message.AppendFormat("Invalid option '{0}'", (char)getopt.Optopt);
+					message.AppendFormat("Invalid option '{0}'", getopt.OptoptStr);
 					return false;
 				case 'j':
                     options.Overwrite = false;
@@ -221,11 +226,14 @@ namespace GNU.Gettext.Xgettext
 				"                                          Macro {1} can be used for C# string\n" +
 				"                                          Use multiples opions to specify more patterns\n\n" +
             	"   --from-code=name                       Specifies the encoding of the input files\n" +
-            	"                                          Default is UTF-8\n\n" +
+            	"                                          Default is '{2}'\n\n" +
+            	"   --detect-code                          Try detects the unicode encoding.\n" +
+            	"                                          If not detected '--from-code' or default '{2}' will be used\n\n" +
             	"   -v, --verbose                          Verbose output\n\n" +
             	"   -h, --help                             Display this help and exit",
 				(new Options()).OutFile,
-				ExtractorCsharp.CsharpStringPatternMacro
+				ExtractorCsharp.CsharpStringPatternMacro,
+				(new Options()).InputEncoding.BodyName
 				);
         }
 	}

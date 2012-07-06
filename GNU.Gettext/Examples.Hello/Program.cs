@@ -29,16 +29,16 @@ namespace GNU.Gettext.Examples
 		static void ShowMessages()
 		{
             Console.WriteLine("Current culture {0}", System.Threading.Thread.CurrentThread.CurrentUICulture);
-            GettextResourceManager catalog = new GettextResourceManager("Examples.Hello.Messages");
+            GettextResourceManager catalog = new GettextResourceManager();
             Console.WriteLine(catalog.GetString("Hello, world!"));
+			// GetStringFmt is an Gettext.NET extension
             Console.WriteLine(catalog.GetStringFmt("This program is running as process number \"{0}\".",
 			                  Process.GetCurrentProcess().Id));
             Console.WriteLine(String.Format(
 				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 1),
 				1));
-            Console.WriteLine(String.Format(
-				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 2),
-				2));
+			// GetPluralStringFmt is an Gettext.NET extension
+            Console.WriteLine(catalog.GetPluralStringFmt("found {0} similar word", "found {0} similar words", 2));
             Console.WriteLine(String.Format(
 				catalog.GetPluralString("found {0} similar word", "found {0} similar words", 5),
 				5));

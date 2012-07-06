@@ -123,7 +123,7 @@ Global
 		{D7DC509C-6BD5-4627-92A8-5CF39A2A41BC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Examples.HelloForms\Examples.HelloForms.csproj
+		StartupItem = Examples.Hello\Examples.Hello.csproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

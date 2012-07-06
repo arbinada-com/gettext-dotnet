@@ -67,6 +67,8 @@ namespace GNU.Gettext
     /// </summary>
     public class GettextResourceManager : ResourceManager
     {
+		
+		public const string ResourceNameSuffix = ".Messages";
 
         // ======================== Public Constructors ========================
 
@@ -85,7 +87,7 @@ namespace GNU.Gettext
 		/// Assembly for locate satellites.
 		/// </param>
         public GettextResourceManager(Assembly assembly)
-            : base(assembly.GetName().Name + ".Messages",
+            : base(assembly.GetName().Name,
 			       assembly,
 			       typeof(GettextResourceSet))
         {
@@ -112,9 +114,24 @@ namespace GNU.Gettext
         }
 
         // ======================== Implementation ========================
+		
+		/// <summary>
+		/// Returns file name for satellite assembly.
+		/// Used for compiling by Msgfmt.NET and loading by this resource manager
+		/// </summary>
+		/// <returns>
+		/// The satellite assembly file name.
+		/// </returns>
+		/// <param name='resourceName'>
+		/// Resource base name, i.e. "Solution1.App2.Module3".
+		/// </param>
+		public static string GetSatelliteAssemblyName(string resourceName)
+		{
+			return String.Format("{0}{1}.resources.dll", resourceName, ResourceNameSuffix);
+		}
 
         /// <summary>
-        /// Loads and returns a satellite assembly.
+        /// Loads and returns a satellite assembly for a given culture..
         /// </summary>
         // This is like Assembly.GetSatelliteAssembly, but uses resourceName
         // instead of assembly.GetName().Name, and works around a bug in
@@ -124,17 +141,11 @@ namespace GNU.Gettext
             String satelliteExpectedLocation =
               Path.GetDirectoryName(assembly.Location)
               + Path.DirectorySeparatorChar + culture.Name
-              + Path.DirectorySeparatorChar + resourceName + ".resources.dll";
+              + Path.DirectorySeparatorChar
+					+ GetSatelliteAssemblyName(resourceName);
             return Assembly.LoadFrom(satelliteExpectedLocation);
         }
 
-        /// <summary>
-        /// Loads and returns the satellite assembly for a given culture.
-        /// </summary>
-        private Assembly MySatelliteAssembly(CultureInfo culture)
-        {
-            return GetSatelliteAssembly(MainAssembly, BaseName, culture);
-        }
 
         /// <summary>
         /// Converts a resource name to a class name.
@@ -295,7 +306,7 @@ namespace GNU.Gettext
                             Assembly satelliteAssembly;
                             try
                             {
-                                satelliteAssembly = MySatelliteAssembly(culture);
+                                satelliteAssembly = GetSatelliteAssembly(MainAssembly, BaseName, culture);
                             }
                             catch (FileNotFoundException)
                             {
@@ -494,7 +505,24 @@ namespace GNU.Gettext
         {
             return GetPluralString(msgid, msgidPlural, n, CultureInfo.CurrentUICulture);
         }
-
+		
+		/// <summary>
+        /// Returns the formatted translation of <paramref name="msgid"/> and
+        /// <paramref name="msgidPlural"/> in the current culture, choosing the
+        /// right plural form depending on the number <paramref name="n"/>.
+        /// </summary>
+        /// <param name="msgid">the key string to be translated, an ASCII
+        ///                     string</param>
+        /// <param name="msgidPlural">the English plural of <paramref name="msgid"/>,
+        ///                           an ASCII string</param>
+        /// <param name="n">the number, should be &gt;= 0</param>
+        /// <returns>the translation, or <paramref name="msgid"/> or
+        ///          <paramref name="msgidPlural"/> if none is found</returns>
+        public virtual String GetPluralStringFmt(String msgid, String msgidPlural, long n)
+        {
+            return String.Format(GetPluralString(msgid, msgidPlural, n, CultureInfo.CurrentUICulture), n);
+        }
+		
         /// <summary>
         /// Returns the translation of <paramref name="msgid"/> in the context
         /// of <paramref name="msgctxt"/> in the current culture.

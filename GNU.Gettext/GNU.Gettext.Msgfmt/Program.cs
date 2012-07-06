@@ -154,11 +154,10 @@ namespace GNU.Gettext.Msgfmt
                     options.CompilerName = getopt.Optarg;
                     break;
 				case ':':
-					message.AppendFormat("Option {0} requires an argument",
-					                     (char)getopt.Optopt);
+					message.AppendFormat("Option {0} requires an argument", getopt.OptoptStr);
 					return false;
 				case '?':
-					message.AppendFormat("Invalid option '{0}'", (char)getopt.Optopt);
+					message.AppendFormat("Invalid option '{0}'", getopt.OptoptStr);
 					return false;
 				case 'r':
                     options.BaseName = getopt.Optarg;
@@ -286,7 +285,8 @@ namespace GNU.Gettext.Msgfmt
             	"    {0}[.exe] [OPTIONS] filename.po ...\n",
                 Assembly.GetExecutingAssembly().GetName().Name);
             Console.WriteLine(
-				"   -r resource, --resource=resource    Base name for resources catalog i.e. \"GNU.App1.Messages\"\n\n" +
+				"   -r resource, --resource=resource    Base name for resources catalog i.e. 'Solution1.App2.Module3'\n" +
+				"                                       Note that '{0}' suffix will be added for using by GettextResourceManager\n\n" +
             	"   -o file, --output-file=file         Output file name for .NET resources file.\n" +
             	"                                       Ignored when -d is specified\n\n" +
             	"   -d directory                        Output directory for satellite assemblies.\n" +
@@ -299,7 +299,8 @@ namespace GNU.Gettext.Msgfmt
             	"   --check-format                      Verify C# format strings and raise error if invalid format is detected\n\n" +
             	"   --csharp-resources                  Convert a PO file to a .resources file instead of satellite assembly\n\n" +
             	"   -v, --verbose                       Verbose output\n\n" +
-            	"   -h, --help                          Display this help and exit"
+            	"   -h, --help                          Display this help and exit",
+				GettextResourceManager.ResourceNameSuffix
 				);
         }
     }

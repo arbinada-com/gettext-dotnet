@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2012-06-28 14:26:54+0200\n"
-"PO-Revision-Date: 2012-07-05 09:53:46+0200\n"
+"PO-Revision-Date: 2012-07-06 12:41:42+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -25,14 +25,14 @@ msgid ""
 "for the common case the string represents multi-line output.\n"
 msgstr ""
 
-#: ../Program.cs:34
+#: ../Program.cs:35
 #, csharp-format
 msgid "This program is running as process number \"{0}\"."
 msgstr ""
 
-#: ../Program.cs:37
-#: ../Program.cs:40
+#: ../Program.cs:38
 #: ../Program.cs:43
+#: ../Program.cs:41
 #, csharp-format
 msgid "found {0} similar word"
 msgid_plural "found {0} similar words"

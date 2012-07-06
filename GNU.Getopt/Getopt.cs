@@ -838,6 +838,24 @@ namespace GNU.Getopt
 		{
 			get	{ return this.optopt; }
 		}
+		
+		/// <summary>
+		/// Return encountered invalid option string representation for
+		/// both short and long forms
+		/// </summary>
+		/// <value>
+		/// Option's short or long name.
+		/// </value>
+		public string OptoptStr
+		{
+			get	
+			{ 
+				return 
+					this.optopt != 0 ? 
+						((char)this.optopt).ToString() : 
+						Argv[this.Optind - 1]; 
+			}
+		}
 
 		/// <summary>
 		/// Returns the index into the array of long options (NOT argv)

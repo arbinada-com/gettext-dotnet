@@ -200,9 +200,9 @@ namespace GNU.Gettext.Msgfmt
 			p.StartInfo.RedirectStandardOutput = true;
 			p.StartInfo.FileName = Options.CompilerName;
 			p.StartInfo.Arguments = String.Format(
-				"-target:library -out:\"{0}/{1}.resources.dll\" -lib:\"{2}\" -reference:GNU.Gettext.dll -optimize+ \"{3}\"",
+				"-target:library -out:\"{0}/{1}\" -lib:\"{2}\" -reference:GNU.Gettext.dll -optimize+ \"{3}\"",
 				AssemblyOutDir,
-				Options.BaseName,
+				GettextResourceManager.GetSatelliteAssemblyName(Options.BaseName),
 				Path.GetFullPath(Options.LibDir),
 				CsharpSourceFileName
 				);

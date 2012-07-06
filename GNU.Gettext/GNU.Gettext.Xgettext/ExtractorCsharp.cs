@@ -90,7 +90,7 @@ namespace GNU.Gettext.Xgettext
 		private void GetMessagesFromFile(string fileName)
 		{
 			fileName = Path.GetFullPath(fileName);
-			StreamReader inputFile = new StreamReader(fileName, Options.InputEncoding);
+			StreamReader inputFile = new StreamReader(fileName, Options.InputEncoding, Options.DetectEncoding);
 			string text = inputFile.ReadToEnd();
 			inputFile.Close();
 			GetMessages(text, fileName);
@@ -102,6 +102,7 @@ namespace GNU.Gettext.Xgettext
 			ProcessPattern(ExtractMode.Msgid, @"GetString\s*\(\s*" + CsharpStringPattern, text, sourceFile);
 			ProcessPattern(ExtractMode.Msgid, @"GetStringFmt\s*\(\s*" + CsharpStringPattern, text, sourceFile);
 			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralString\s*\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralStringFmt\s*\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
 			ProcessPattern(ExtractMode.ContextMsgid, @"GetParticularString\s*\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
 			
 			// Winforms patterns
