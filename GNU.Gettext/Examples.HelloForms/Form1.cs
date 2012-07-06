@@ -70,6 +70,8 @@ namespace GNU.Gettext.Examples
 		private RadioButton rbEnUs;
 		private RadioButton rbFrFr;
 		private RadioButton rbRuRu;
+		private GroupBox gbSwitch;
+		private GroupBox gbForms;
 		private Label label1;
 		private Label label2;
 		private Label label3;
@@ -97,27 +99,33 @@ namespace GNU.Gettext.Examples
             this.Text = "Hello, world!";
 			this.Width = 440;
 			this.Height = 400;
-
+			
+			gbSwitch = new GroupBox();
+			gbSwitch.Location = new Point(5, 5);
+			gbSwitch.Width = this.Width - 25;
+			gbSwitch.Height = 35;
+			Controls.Add(gbSwitch);
+			
 			rbEnUs = new RadioButton();
 			rbEnUs.Text = "en-US";
-			rbEnUs.Location = new Point(10, 10);
+			rbEnUs.Location = new Point(15, 5);
 			rbEnUs.AutoSize = true;
 			rbEnUs.Click += OnLocaleChanged;
-			Controls.Add(rbEnUs);
+			gbSwitch.Controls.Add(rbEnUs);
 
 			rbFrFr = new RadioButton();
 			rbFrFr.Text = "fr-FR";
-			rbFrFr.Location = new Point(130, 10);
+			rbFrFr.Location = new Point(150, 5);
 			rbFrFr.AutoSize = true;
 			rbFrFr.Click += OnLocaleChanged;
-			Controls.Add(rbFrFr);
+			gbSwitch.Controls.Add(rbFrFr);
 
 			rbRuRu = new RadioButton();
 			rbRuRu.Text = "ru-RU";
-			rbRuRu.Location = new Point(250, 10);
+			rbRuRu.Location = new Point(280, 5);
 			rbRuRu.AutoSize = true;
 			rbRuRu.Click += OnLocaleChanged;
-			Controls.Add(rbRuRu);
+			gbSwitch.Controls.Add(rbRuRu);
 			
 			toolTip1 = new ToolTip(this.components);
 			toolTip1.SetToolTip(rbEnUs, "Switch to English");
@@ -137,23 +145,29 @@ namespace GNU.Gettext.Examples
 			label2.AutoSize = true;
 			Controls.Add(label2);
 
+			gbForms = new GroupBox();
+			gbForms.Location = new Point(10, 105);
+			gbForms.Width = this.Width - 25;
+			gbForms.Height = 70;
+			Controls.Add(gbForms);
+
 			label3 = new Label();
 			label3.Name = "label3";
-			label3.Location = new Point(10, 100);
+			label3.Location = new Point(5, 5);
 			label3.AutoSize = true;
-			Controls.Add(label3);
+			gbForms.Controls.Add(label3);
 
 			label4 = new Label();
 			label4.Name = "label4";
-			label4.Location = new Point(10, 120);
+			label4.Location = new Point(5, 25);
 			label4.AutoSize = true;
-			Controls.Add(label4);
+			gbForms.Controls.Add(label4);
 
 			label5 = new Label();
 			label5.Name = "label5";
-			label5.Location = new Point(10, 140);
+			label5.Location = new Point(5, 45);
 			label5.AutoSize = true;
-			Controls.Add(label5);
+			gbForms.Controls.Add(label5);
 
 			label6 = new Label();
 			label6.Name = "label6";

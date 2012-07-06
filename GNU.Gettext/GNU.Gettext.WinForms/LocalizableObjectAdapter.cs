@@ -59,6 +59,11 @@ namespace GNU.Gettext.WinForms
 				}
 			}
 		}
+		
+		public override string ToString()
+		{
+			return string.Format("[LocalizableObjectAdapter: Source={0}]", Source);
+		}
 		#endregion
 		
 		private void StoreIfOriginal(string propertyName, string value)

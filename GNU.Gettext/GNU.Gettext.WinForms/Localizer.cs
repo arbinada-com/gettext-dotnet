@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
@@ -47,10 +48,12 @@ namespace GNU.Gettext.WinForms
 			this.root = rootControl;
 
 			// Access to form components
+			// Try access by container
 			IterateControls(root, 
 			               delegate(Control control) {
 				InitFromContainer(control.Container);
 			});
+			// Access by private member
 			for (Control c = root; c != null; c = c.Parent)
 			{
 				if (c is Form || c is UserControl)
@@ -62,8 +65,6 @@ namespace GNU.Gettext.WinForms
 					}
 				}
 			}
-			
-			Localize();
 		}
 		
 		private void InitFromContainer(IContainer container)
@@ -110,6 +111,20 @@ namespace GNU.Gettext.WinForms
 		{
 			IterateControls(root, IterateMode.Revert);
 		}
+		
+#if DEBUG		
+		private const string ListenerName = "LocalizerTraceListener";
+		public void TraceToFile(string fileName)
+		{
+			Debug.Listeners.Add(new TextWriterTraceListener(fileName, ListenerName));
+		}
+		
+		public void StopTrace()
+		{
+			Debug.Flush();
+			Debug.Listeners.Remove(ListenerName);
+		}
+#endif
 		#endregion
 		
 		#region Handlers for different types
@@ -124,9 +139,11 @@ namespace GNU.Gettext.WinForms
 			switch (mode)
 			{
 			case IterateMode.Localize:
+				Debug.WriteLine(String.Format("Localizing '{0}'", adapter.ToString()));
 				adapter.Localize(Catalog);
 				break;
 			case IterateMode.Revert:
+				Debug.WriteLine(String.Format("Reverting '{0}'", adapter.ToString()));
 				adapter.Revert();
 				break;
 			}
@@ -146,12 +163,9 @@ namespace GNU.Gettext.WinForms
 		
 		private void IterateControls(Control control, OnIterateControl onIterateControl)
 		{
-			if (control is ContainerControl)
+			foreach(Control child in control.Controls)
 			{
-				foreach(Control child in (control as ContainerControl).Controls)
-				{
-					IterateControls(child, onIterateControl);
-				}
+				IterateControls(child, onIterateControl);
 			}
 			
 			if (onIterateControl != null)
@@ -161,12 +175,9 @@ namespace GNU.Gettext.WinForms
 		
 		private void IterateControls(Control control, IterateMode mode)
 		{
-			if (control is ContainerControl)
+			foreach(Control child in control.Controls)
 			{
-				foreach(Control child in (control as ContainerControl).Controls)
-				{
-					IterateControls(child, mode);
-				}
+				IterateControls(child, mode);
 			}
 			
 			if (control is ToolStrip)

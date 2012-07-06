@@ -44,6 +44,33 @@ namespace GNU.Gettext.Test
 			Assert.AreEqual(2, extractor.Catalog.PluralFormsCount, "PluralFormsCount");
 			Assert.AreEqual(14, extractor.Catalog.Count, "Duplicates may not detected");
 		}
+		
+		[Test()]
+		public void RemoveCommentsTest()
+		{
+			string input = @"
+/*
+ *
+ * This
+ * is
+ * // Comment
+ */
+string s = ""/*This is not comment*/"";
+string s2 = ""This is //not comment too"";
+button1.Text = ""Save""; // Save data.Text = ""10""
+//button1.Text = ""Save""; // Save data.Text = ""10""
+// button1.Text = ""Save""; // Save data.Text = ""10""
+/*button1.Text = ""Save""; // Save data.Text = ""10""*/
+";
+			string output = ExtractorCsharp.RemoveComments(input);
+			Assert.IsTrue(output.IndexOf("/*This is not comment*/") >= 0, "Multiline comment chars in string");
+			Assert.IsTrue(output.IndexOf("This is //not comment too") >= 0, "Single line comment chars in string");
+			Assert.AreEqual(-1, output.IndexOf("// Save"), "Single line comment");
+			Assert.AreEqual(-1, output.IndexOf("//button1"), "Single line comment");
+			Assert.AreEqual(-1, output.IndexOf("/*\n"), "Multi line comment");
+			Assert.AreEqual(-1, output.IndexOf("/*button1"), "Multi line comment in single line");
+		}
 	}
+	
 }
 

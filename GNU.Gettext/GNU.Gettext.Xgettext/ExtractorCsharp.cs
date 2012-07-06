@@ -99,23 +99,47 @@ namespace GNU.Gettext.Xgettext
 			
 		public void GetMessages(string text, string sourceFile) 
 		{
-			ProcessPattern(ExtractMode.Msgid, @"GetString\s*\(\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.Msgid, @"GetStringFmt\s*\(\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralString\s*\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralStringFmt\s*\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.ContextMsgid, @"GetParticularString\s*\(\s*" + TwoStringsArgumentsPattern, text, sourceFile);
+			text = RemoveComments(text);
+			
+			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"GetString\s*\(\s*" + CsharpStringPattern, text), text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"GetStringFmt\s*\(\s*" + CsharpStringPattern, text), text, sourceFile);
+			ProcessPattern(ExtractMode.MsgidPlural, ApplyPattern(@"GetPluralString\s*\(\s*" + TwoStringsArgumentsPattern, text), text, sourceFile);
+			ProcessPattern(ExtractMode.MsgidPlural, ApplyPattern(@"GetPluralStringFmt\s*\(\s*" + TwoStringsArgumentsPattern, text), text, sourceFile);
+			ProcessPattern(ExtractMode.ContextMsgid, ApplyPattern(@"GetParticularString\s*\(\s*" + TwoStringsArgumentsPattern, text), text, sourceFile);
 			
 			// Winforms patterns
-			ProcessPattern(ExtractMode.Msgid, @"\.\s*Text\s*=\s*" + CsharpStringPattern, text, sourceFile);
-			ProcessPattern(ExtractMode.Msgid, @"\.\s*SetToolTip\s*\([^\\""]*\s*,\s*" + CsharpStringPattern, text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"\.\s*Text\s*=\s*" + CsharpStringPattern, text), text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"\.\s*ToolTipText\s*=\s*" + CsharpStringPattern, text), text, sourceFile);
+			ProcessPattern(ExtractMode.Msgid, ApplyPattern(@"\.\s*SetToolTip\s*\([^\\""]*\s*,\s*" + CsharpStringPattern, text), text, sourceFile);
 			
 			// Custom patterns
 			foreach(string pattern in Options.SearchPatterns)
 			{
-				ProcessPattern(ExtractMode.Msgid, pattern.Replace(CsharpStringPatternMacro, CsharpStringPattern), text, sourceFile);
+				ProcessPattern(ExtractMode.Msgid, ApplyPattern(pattern.Replace(CsharpStringPatternMacro, CsharpStringPattern), text), text, sourceFile);
 			}
 		}
+
+		public static string RemoveComments(string input)
+		{
+            string blockComments = @"/\*(.*?)\*/";
+            string lineComments = @"//(.*?)(\r?\n|$)";
+			
+			return Regex.Replace(
+				input,
+				blockComments + "|" + lineComments + "|" + CsharpStringPattern,
+				me => {
+				if (me.Value.StartsWith("/*") || me.Value.StartsWith("//"))
+				{
+					// Replace the comments with empty, i.e. remove them
+					return me.Value.StartsWith("//") ? me.Groups[3].Value : "";
+				}
+				// Keep the literal strings
+				return me.Value;
+			},
+			RegexOptions.Singleline);
+		}
 		
+	
 		public void Save()
 		{
 			if (File.Exists(Options.OutFile))
@@ -128,11 +152,14 @@ namespace GNU.Gettext.Xgettext
 			Catalog.Save(Options.OutFile);
 		}
 		
-		private void ProcessPattern(ExtractMode mode, string pattern, string text, string sourceFile)
+		private MatchCollection ApplyPattern(string pattern, string text)
 		{
 			Regex r = new Regex(pattern, RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline);
-			MatchCollection matches = r.Matches(text);
-			
+			return r.Matches(text);
+		}
+		
+		private void ProcessPattern(ExtractMode mode, MatchCollection matches, string text, string sourceFile)
+		{
 			foreach (Match match in matches)
 			{
 				GroupCollection groups = match.Groups;
