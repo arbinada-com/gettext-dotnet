@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using NUnit.Framework;
@@ -28,6 +29,22 @@ namespace GNU.Gettext.Test
 				Path.Combine(Environment.CurrentDirectory, String.Format("dir{0}subdir{0}", Path.DirectorySeparatorChar))));
 			
  
+		}
+
+		[Test()]
+		public void ReadStringsTest()
+		{
+			List<string> files = FileUtils.ReadStrings("./Data/UtilsTest.txt");
+			Assert.AreEqual(3, files.Count, "Simple reading");
+
+			FileUtils.ReadStrings("./Data/UtilsTest.txt", files);
+			Assert.AreEqual(3, files.Count, "Merged with duplicates");
+
+			files = new List<string>();
+			files.Add("Test 1");
+			files.Add("Test 2");
+			FileUtils.ReadStrings("./Data/UtilsTest.txt", files);
+			Assert.AreEqual(5, files.Count, "Merge failed");
 		}
 	}
 }

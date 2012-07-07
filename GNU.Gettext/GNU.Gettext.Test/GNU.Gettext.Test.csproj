@@ -92,6 +92,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Data\UtilsTest.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Data\XgettextTest.txt" />
   </ItemGroup>
 </Project>

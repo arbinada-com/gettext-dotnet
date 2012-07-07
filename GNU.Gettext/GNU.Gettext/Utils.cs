@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 using System.Text;
 
 namespace GNU.Gettext.Utils
@@ -15,6 +16,24 @@ namespace GNU.Gettext.Utils
 			Uri dirUri = new Uri(relativeUriString);
 			Uri relativeUri = dirUri.MakeRelativeUri(fileUri);
 			return relativeUri.ToString();
+		}
+
+
+		public static List<string> ReadStrings(string fileName, List<string> mergeWith = null)
+		{
+			List<string> strings = new List<string>();
+			if (mergeWith != null)
+				strings = mergeWith;
+			using (StreamReader r = new StreamReader(fileName))
+			{
+			    string line;
+			    while ((line = r.ReadLine()) != null && line.Trim().Length > 0)
+			    {
+					if (!strings.Contains(line))
+						strings.Add(line);
+			    }
+			}
+			return strings;
 		}
 	}
 }

@@ -41,7 +41,7 @@ namespace GNU.Gettext.Xgettext
 	
 	class MainClass
 	{
-		public const String SOpts = "-:hjD:o:v";
+		public const String SOpts = "-:hjf:D:o:v";
 		public static LongOpt[] LOpts
 		{
 			get
@@ -55,6 +55,7 @@ namespace GNU.Gettext.Xgettext
 					new LongOpt("search-pattern", Argument.Required, null, 3),
 					new LongOpt("output", Argument.Required, null, 'o'),
 					new LongOpt("from-code", Argument.Required, null, 4),
+					new LongOpt("files-from", Argument.Required, null, 'f'),
 					new LongOpt("detect-code", Argument.No, null, 5),
 					new LongOpt("verbose", Argument.No, null, 'v')
 				};
@@ -148,6 +149,10 @@ namespace GNU.Gettext.Xgettext
 				case '?':
 					message.AppendFormat("Invalid option '{0}'", getopt.OptoptStr);
 					return false;
+				case 'f':
+					string fileList = getopt.Optarg;
+					Utils.FileUtils.ReadStrings(fileList, options.InputFiles);
+					break;
 				case 'j':
                     options.Overwrite = false;
                     break;
@@ -212,9 +217,11 @@ namespace GNU.Gettext.Xgettext
             Console.WriteLine("Extract strings from C# source code files and then creates or updates PO template file");
             Console.WriteLine();
             Console.WriteLine("Usage:\n" +
-            	"{0}[.exe] [options] [inputfile | filemask] ...\n\n",
+            	"    {0}[.exe] [options] [inputfile | filemask] ...\n\n",
                 Assembly.GetExecutingAssembly().GetName().Name);
             Console.WriteLine(
+				"   -f, --files-from=file                  Read the names of the input files from file\n" +
+				"                                          instead of getting them from the command line\n\n" +
 				"   -j, --join-existing                    Join with existing file instead of overwrite\n\n" +
             	"   -o file, --output=file                 Output PO template file name.\n" +
             	"                                          Using of '*.pot' file type is strongly recommended\n" +
