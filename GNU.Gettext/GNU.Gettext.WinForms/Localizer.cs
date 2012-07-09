@@ -180,6 +180,14 @@ namespace GNU.Gettext.WinForms
 				IterateControls(child, mode);
 			}
 			
+			if (control is DataGridView)
+			{
+				foreach(DataGridViewColumn col in (control as DataGridView).Columns)
+				{
+					IterateControlHandler(new LocalizableObjectAdapter(col, OriginalTextStore, toolTips), mode);
+				}
+			}
+			
 			if (control is ToolStrip)
 			{
 				foreach(ToolStripItem item in (control as ToolStrip).Items)

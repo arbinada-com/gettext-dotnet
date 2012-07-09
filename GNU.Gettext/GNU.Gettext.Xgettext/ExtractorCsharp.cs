@@ -105,6 +105,7 @@ namespace GNU.Gettext.Xgettext
 		{
 			text = RemoveComments(text);
 			
+			// Gettext functions patterns
 			ProcessPattern(ExtractMode.Msgid, @"GetString\s*\(\s*" + CsharpStringPattern, text, inputFile);
 			ProcessPattern(ExtractMode.Msgid, @"GetStringFmt\s*\(\s*" + CsharpStringPattern, text, inputFile);
 			ProcessPattern(ExtractMode.MsgidPlural, @"GetPluralString\s*\(\s*" + TwoStringsArgumentsPattern, text, inputFile);
@@ -117,6 +118,9 @@ namespace GNU.Gettext.Xgettext
 			ProcessPattern(ExtractMode.Msgid, @"\.\s*Text\s*=\s*" + CsharpStringPattern + @"\s*;", text, inputFile);
 			ProcessPattern(ExtractMode.MsgidConcat, @"\.\s*Text\s*=\s*" + ConcatenatedStringsPattern, text, inputFile);
 
+			ProcessPattern(ExtractMode.Msgid, @"\.\s*HeaderText\s*=\s*" + CsharpStringPattern + @"\s*;", text, inputFile);
+			ProcessPattern(ExtractMode.MsgidConcat, @"\.\s*HeaderText\s*=\s*" + ConcatenatedStringsPattern, text, inputFile);
+			
 			ProcessPattern(ExtractMode.Msgid, @"\.\s*ToolTipText\s*=\s*" + CsharpStringPattern + @"\s*;", text, inputFile);
 			ProcessPattern(ExtractMode.MsgidConcat, @"\.\s*ToolTipText\s*=\s*" + ConcatenatedStringsPattern, text, inputFile);
 

@@ -23,6 +23,7 @@ namespace GNU.Gettext.WinForms
 		public void Localize(GettextResourceManager catalog)
 		{
 			LocalizeProperty(catalog, "Text");
+			LocalizeProperty(catalog, "HeaderText");
 			LocalizeProperty(catalog, "ToolTipText");
 			
 			if (Source is Control)
@@ -44,6 +45,7 @@ namespace GNU.Gettext.WinForms
 		public void Revert()
 		{
 			RevertProperty("Text");
+			RevertProperty("HeaderText");
 			RevertProperty("ToolTipText");
 			
 			if (Source is Control)

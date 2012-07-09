@@ -36,12 +36,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
-    <CustomCommands>
-      <CustomCommands>
-        <Command type="AfterBuild" command="${ProjectDir}/../../Bin/${ProjectConfigName}/GNU.Gettext.Msgfmt.exe -l fr-FR -d ${ProjectDir}/bin/${ProjectConfigName} -r Examples.Hello -L ${ProjectDir}/../../Bin/${ProjectConfigName} -v ${ProjectDir}/po/fr.po" />
-        <Command type="AfterBuild" command="${ProjectDir}/../../Bin/${ProjectConfigName}/GNU.Gettext.Msgfmt.exe -l ru-RU -d ${ProjectDir}/bin/${ProjectConfigName} -r Examples.Hello -L ${ProjectDir}/../../Bin/${ProjectConfigName} -v ${ProjectDir}/po/ru.po" />
-      </CustomCommands>
-    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,12 +44,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CustomCommands>
-      <CustomCommands>
-        <Command type="AfterBuild" command="${ProjectDir}/../../Bin/${ProjectConfigName}/GNU.Gettext.Msgfmt.exe -l fr-FR -d ${ProjectDir}/bin/${ProjectConfigName} -r Examples.Hello -L ${ProjectDir}/../../Bin/${ProjectConfigName} -v ${ProjectDir}/po/fr.po" />
-        <Command type="AfterBuild" command="${ProjectDir}/../../Bin/${ProjectConfigName}/GNU.Gettext.Msgfmt.exe -l ru-RU -d ${ProjectDir}/bin/${ProjectConfigName} -r Examples.Hello -L ${ProjectDir}/../../Bin/${ProjectConfigName} -v ${ProjectDir}/po/ru.po" />
-      </CustomCommands>
-    </CustomCommands>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
