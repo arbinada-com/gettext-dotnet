@@ -4,6 +4,8 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Resources;
+using System.Collections;
 
 namespace GNU.Gettext.Xgettext
 {
@@ -11,6 +13,7 @@ namespace GNU.Gettext.Xgettext
 	{
 		Msgid,
 		MsgidConcat, // Like "Str 1 " + "Str 2" + "Str 3"
+		MsgidFromResx, // For forms/controls that have property "Localizable" = true
 		MsgidPlural,
 		ContextMsgid,
 	}
@@ -126,6 +129,9 @@ namespace GNU.Gettext.Xgettext
 
 			ProcessPattern(ExtractMode.Msgid, @"\.\s*SetToolTip\s*\([^\\""]*\s*,\s*" + CsharpStringPattern + @"\s*\)\s*;", text, inputFile);
 			ProcessPattern(ExtractMode.MsgidConcat, @"\.\s*SetToolTip\s*\([^\\""]*\s*,\s*" + ConcatenatedStringsPattern, text, inputFile);
+			
+			if (ReadResources(inputFile))
+				ProcessPattern(ExtractMode.MsgidFromResx, @"\.\s*ApplyResources\s*\([^\\""]*\s*,\s*" + CsharpStringPattern + @"\s*\)\s*;", text, inputFile);
 
 			// Custom patterns
 			foreach(string pattern in Options.SearchPatterns)
@@ -198,6 +204,18 @@ namespace GNU.Gettext.Xgettext
 					}
 					msgid = sb.ToString();
 					break;
+				case ExtractMode.MsgidFromResx:
+					string controlId = Unescape(groups[1].Value);
+					msgid = ExtractResourceString(controlId);
+					if (String.IsNullOrEmpty(msgid))
+					{
+						if (Options.Verbose)
+							Trace.WriteLine(String.Format(
+								"Warning: cannot extract string for control '{0}' ({1})", 
+								controlId, inputFile));
+						continue;
+					}
+					break;
 				case ExtractMode.MsgidPlural:
 					if (groups.Count < 3)
 						throw new Exception(String.Format("Invalid 'GetPluralString' call.\nSource: {0}", match.Value));
@@ -266,6 +284,48 @@ namespace GNU.Gettext.Xgettext
 
 			if (!entryFound)
 				Catalog.AddItem(entry);
+		}
+		
+		
+		private Dictionary<string, string> resources = new Dictionary<string, string>();
+		
+		private bool ReadResources(string inputFile)
+		{
+			resources.Clear();
+			string resxFileName = Path.Combine(Path.GetDirectoryName(inputFile), Path.GetFileNameWithoutExtension(inputFile));
+			if (resxFileName.EndsWith(".Designer"))
+				resxFileName = Path.Combine(Path.GetDirectoryName(inputFile), Path.GetFileNameWithoutExtension(resxFileName));
+			resxFileName += ".resx";
+			
+			if (!File.Exists(resxFileName))
+				return false;
+			else
+			{
+				if (Options.Verbose)
+					Debug.WriteLine(String.Format("Extracting from resource file: {0} (Input file: {1})",
+					                              resxFileName, inputFile));
+			}
+			
+			ResXResourceReader rsxr = new ResXResourceReader(resxFileName);
+			foreach(DictionaryEntry entry in rsxr)
+			{
+				if (entry.Value is string)
+				{
+					resources.Add(entry.Key.ToString(), entry.Value.ToString());
+					//Debug.WriteLine(String.Format("{0}: {1}", entry.Key.ToString(), entry.Value.ToString()));
+				}
+			}
+			return true;
+		}
+
+		private string ExtractResourceString(string controlId)
+		{
+			string msgid = null;
+			if (!resources.TryGetValue(controlId + ".Text", out msgid))
+				if (!resources.TryGetValue(controlId + ".TooTipText", out msgid))
+					if (!resources.TryGetValue(controlId + ".HeaderText", out msgid))
+						return null;
+			return msgid;
 		}
 		
 		private int CalcLineNumber(string text, int pos)
