@@ -215,6 +215,8 @@ namespace GNU.Gettext.Xgettext
 								controlId, inputFile));
 						continue;
 					}
+					if (controlId == msgid)
+						continue; // Text property was initialized by controlId and was not changed so this text is not usable in application
 					break;
 				case ExtractMode.MsgidPlural:
 					if (groups.Count < 3)
@@ -228,7 +230,7 @@ namespace GNU.Gettext.Xgettext
 					context = Unescape(groups[1].Value);
 					msgid = Unescape(groups[2].Value);
 					if (groups.Count == 4)
-					msgidPlural = Unescape(groups[3].Value);
+						msgidPlural = Unescape(groups[3].Value);
 					break;
 				}
 				MergeWithEntry(context, msgid, msgidPlural, inputFile, CalcLineNumber(text, match.Index));

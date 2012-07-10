@@ -222,7 +222,6 @@ namespace GNU.Gettext.Xgettext
             Console.WriteLine(
 				"   -f, --files-from=file                  Read the names of the input files from file\n" +
 				"                                          instead of getting them from the command line\n\n" +
-				"   -j, --join-existing                    Join with existing file instead of overwrite\n\n" +
             	"   -o file, --output=file                 Output PO template file name.\n" +
             	"                                          Using of '*.pot' file type is strongly recommended\n" +
             	"                                          \"{0}\" will be used if not specified\n\n" +
@@ -236,6 +235,7 @@ namespace GNU.Gettext.Xgettext
             	"                                          Default is '{2}'\n\n" +
             	"   --detect-code                          Try detects the unicode encoding.\n" +
             	"                                          If not detected '--from-code' or default '{2}' will be used\n\n" +
+				"   -j, --join-existing                    Join with existing file instead of overwrite\n\n" +
             	"   -v, --verbose                          Verbose output\n\n" +
             	"   -h, --help                             Display this help and exit",
 				(new Options()).OutFile,
