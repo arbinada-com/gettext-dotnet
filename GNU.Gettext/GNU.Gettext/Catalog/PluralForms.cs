@@ -435,9 +435,8 @@ namespace GNU.Gettext
 			get { return nplurals; }
 		}
 		
-		// input: number, returns msgstr index
 		/// <summary>
-		/// Evaluate the specified number.
+        /// Evaluate the specified number, returns msgstr index.
 		/// </summary>
 		/// <param name='n'>
 		/// Number to evaluate
@@ -445,7 +444,7 @@ namespace GNU.Gettext
 		/// <param name='traceToFile'>
 		/// Debug purposes only. Trace to file an evaluation tree.
 		/// </param>
-		public long Evaluate(long n, bool traceToFile = false)
+		public long Evaluate(long n, bool traceToFile)
 		{
 			if (plural == null) {
 				return 0;
@@ -481,6 +480,11 @@ namespace GNU.Gettext
 				return 0;
 			}
 			return number;
+		}
+
+		public long Evaluate(long n)
+		{
+			return Evaluate(n, false);
 		}
 
 		/// <summary>

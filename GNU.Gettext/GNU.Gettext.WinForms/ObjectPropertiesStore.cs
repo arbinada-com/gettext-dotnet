@@ -16,7 +16,12 @@ namespace GNU.Gettext.WinForms
 		{
 		}
 		
-		public void SetState(object obj, string propertyName, object value = null)
+		public void SetState(object obj, string propertyName)
+        {
+            SetState(obj, propertyName, null);
+        }
+
+		public void SetState(object obj, string propertyName, object value)
 		{
 			if (value == null)
 			{

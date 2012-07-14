@@ -31,7 +31,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using System.Linq; //GB Added
 
 namespace GNU.Gettext
 {

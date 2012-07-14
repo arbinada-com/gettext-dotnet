@@ -9,6 +9,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>GNU.Gettext.Xgettext</RootNamespace>
     <AssemblyName>GNU.Gettext.Xgettext</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

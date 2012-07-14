@@ -18,8 +18,12 @@ namespace GNU.Gettext.Utils
 			return relativeUri.ToString();
 		}
 
+		public static List<string> ReadStrings(string fileName)
+        {
+            return ReadStrings(fileName, null);
+        }
 
-		public static List<string> ReadStrings(string fileName, List<string> mergeWith = null)
+		public static List<string> ReadStrings(string fileName, List<string> mergeWith)
 		{
 			List<string> strings = new List<string>();
 			if (mergeWith != null)

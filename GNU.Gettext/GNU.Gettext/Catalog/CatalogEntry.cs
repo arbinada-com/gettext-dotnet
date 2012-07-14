@@ -347,12 +347,17 @@ namespace GNU.Gettext
 		}
 		
 		// Adds new autocomments (#. )
-		public void AddAutoComment (string comment, bool ifNotExists = false)
+		public void AddAutoComment (string comment, bool ifNotExists)
 		{
 			if (!ifNotExists || !autocomments.Contains(comment)) {
 				autocomments.Add (comment);
 			}
 		}
+
+		public void AddAutoComment (string comment)
+        {
+            AddAutoComment(comment, false);
+        }
 		
 		// Clears autocomments.
 		public void ClearAutoComments ()
