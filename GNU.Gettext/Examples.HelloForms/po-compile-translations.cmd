@@ -1,6 +1,6 @@
 @echo off
 
-set CSHARP_BIN_DIR=C:\Windows\Microsoft.NET\Framework\v3.5
+set CSHARP_BIN_DIR=C:\Windows\Microsoft.NET\Framework\v4.0.30319
 set PATH=%CSHARP_BIN_DIR%;%PATH%
 
 %~d0
