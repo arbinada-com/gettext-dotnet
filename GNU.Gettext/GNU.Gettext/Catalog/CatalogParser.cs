@@ -67,7 +67,7 @@ namespace GNU.Gettext
 			char foundchar = 'x';
 			char[] curr = new char[] {'x'};
 			
-			using (TextReader tr = new StreamReader(File.Open(fileName,FileMode.Open),encoding))
+			using (TextReader tr = new StreamReader(File.Open(fileName, FileMode.Open, FileAccess.Read),encoding))
 			{
 				while (tr.Read (curr,0,1) != 0)
 				{
