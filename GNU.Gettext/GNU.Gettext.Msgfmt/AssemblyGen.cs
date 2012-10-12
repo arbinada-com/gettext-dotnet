@@ -40,10 +40,11 @@ namespace GNU.Gettext.Msgfmt
         public void Run()
         {
 			catalog = new Catalog();
-			foreach(string fileName in Options.InputFiles)
+			catalog.Load(Options.InputFiles[0]);
+			for(int i = 1; i < Options.InputFiles.Count; i++)
 			{
 				Catalog temp = new Catalog();
-				temp.Load(fileName);
+				temp.Load(Options.InputFiles[i]);
 				catalog.Append(temp);
 			}
 			Check();

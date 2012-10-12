@@ -20,7 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Commandlineparameters>-i../../GNU.Gettext/Examples.Hello/po/fr.po -d../../GNU.Gettext/Examples.Hello/bin/Debug -b"Examples.Hello.Messages" -lfr -cmcs -L"./../../Bin/Debug" -v --check-format</Commandlineparameters>
+    <Commandlineparameters>-l ru-RU -d ../../GNU.Gettext/Examples.Hello/bin/Debug -r Examples.Hello  -L ./../../Bin/Debug -v ../../GNU.Gettext/Examples.Hello/po/ru.po </Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
