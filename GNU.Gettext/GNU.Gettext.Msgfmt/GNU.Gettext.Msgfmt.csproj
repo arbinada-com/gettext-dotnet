@@ -11,14 +11,12 @@
     <RootNamespace>GNU.Gettext.Msgfmt</RootNamespace>
     <AssemblyName>GNU.Gettext.Msgfmt</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>../../Bin/Debug</OutputPath>
+    <OutputPath>..\..\Bin\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -27,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>../../Bin/Release</OutputPath>
+    <OutputPath>..\..\Bin\Release</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -50,9 +48,6 @@
       <Project>{6996D99C-2E0F-4EDA-9FF0-BB45F81EADC8}</Project>
       <Name>GNU.Gettext</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
