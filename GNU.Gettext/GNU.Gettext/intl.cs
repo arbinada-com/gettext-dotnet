@@ -138,12 +138,26 @@ namespace GNU.Gettext
         // mono-0.28.
         private static Assembly GetSatelliteAssembly(Assembly assembly, String resourceName, CultureInfo culture)
         {
-            String satelliteExpectedLocation =
+            string satelliteExpectedLocation =
               Path.GetDirectoryName(assembly.Location)
               + Path.DirectorySeparatorChar + culture.Name
               + Path.DirectorySeparatorChar
 					+ GetSatelliteAssemblyName(resourceName);
-            return Assembly.LoadFrom(satelliteExpectedLocation);
+            if (File.Exists(satelliteExpectedLocation))
+            {
+                return Assembly.LoadFrom(satelliteExpectedLocation);
+            }
+            // Try to load embedded assembly
+            string embeddedResourceId = String.Format("{0}.{1}.{2}",
+                assembly.GetName().Name, culture.Name, GetSatelliteAssemblyName(resourceName));
+            using (Stream satAssemblyStream = assembly.GetManifestResourceStream(embeddedResourceId))
+            {
+                if (satAssemblyStream == null)
+                    return null;
+                Byte[] assemblyData = new Byte[satAssemblyStream.Length];
+                satAssemblyStream.Read(assemblyData, 0, assemblyData.Length);
+                return Assembly.Load(assemblyData);
+            }
         }
 
 
