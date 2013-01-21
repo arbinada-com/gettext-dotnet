@@ -18,5 +18,5 @@ echo Last revision is: $revision
 svn checkout -q $svn_repo_url ./$release_dir/
 
 rm $product_name*.zip
-zip -9 -r -q $product_name".v"$version"r"$revision.zip ./$release_dir
+zip -9 -r -q $product_name".v"$version"r"$revision.zip ./$release_dir -x *.svn*
 rm -f -r ./$release_dir
