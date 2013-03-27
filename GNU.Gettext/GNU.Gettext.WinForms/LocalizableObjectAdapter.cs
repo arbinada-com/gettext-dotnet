@@ -111,7 +111,19 @@ namespace GNU.Gettext.WinForms
 			if (pi != null && pi.CanWrite)
 			{
 				StoreIfOriginal(name, value);
-				pi.SetValue(Source, value, null);
+                try
+                {
+                    pi.SetValue(Source, value, null);
+                }
+                catch (Exception ex)
+                {
+                    // Workaround:
+                    // Property may exist and be accessible as read/write but not supported
+                    // Example: WebBrowser.Text
+                    if (!(ex is NotSupportedException ||
+                        (ex.InnerException != null && ex.InnerException is NotSupportedException)))
+                        throw;
+                }
 			}
 		}
 	}
