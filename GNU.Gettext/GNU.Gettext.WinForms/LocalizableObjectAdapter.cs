@@ -110,7 +110,7 @@ namespace GNU.Gettext.WinForms
 			PropertyInfo pi = Source.GetType().GetProperty(name);
 			if (pi != null && pi.CanWrite)
 			{
-				StoreIfOriginal(name, value);
+				StoreIfOriginal(name, GetPropertyValue(name));
                 try
                 {
                     pi.SetValue(Source, value, null);
