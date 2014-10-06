@@ -150,8 +150,19 @@ namespace GNU.Gettext
             // Try to load embedded assembly
             string embeddedResourceId = String.Format("{0}.{1}.{2}",
                 assembly.GetName().Name, culture.Name, GetSatelliteAssemblyName(resourceName));
-            using (Stream satAssemblyStream = assembly.GetManifestResourceStream(embeddedResourceId))
+			Stream satAssemblyStream = null;
+            using (satAssemblyStream = assembly.GetManifestResourceStream(embeddedResourceId))
             {
+				if (satAssemblyStream == null)
+				{
+					// Workaround: .NET doesn't alow '-' in embedded resources names 
+					// https://sourceforge.net/p/gettextnet/discussion/general/thread/88033218/
+					embeddedResourceId = String.Format("{0}.{1}.{2}",
+					                                   assembly.GetName().Name, 
+					                                   culture.Name.Replace('-', '_'), 
+					                                   GetSatelliteAssemblyName(resourceName));
+					satAssemblyStream = assembly.GetManifestResourceStream(embeddedResourceId);
+				}
                 if (satAssemblyStream == null)
                     return null;
                 Byte[] assemblyData = new Byte[satAssemblyStream.Length];
